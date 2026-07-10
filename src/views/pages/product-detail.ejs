@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+
+<p><a href="/">&larr; Back to Catalog Workspace</a></p>
+
+<div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
+    
+    <!-- Product Image Workspace -->
+    <div style="flex: 1;">
+        <img src="<%= product.image_url %>" alt="<%= product.name %>" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+    </div>
+    
+    <!-- Product Specifications -->
+    <div style="flex: 1;">
+        <h2><%= product.name %></h2>
+        <p class="price" style="font-size: 2rem; margin: 10px 0;">$<%= parseFloat(product.price).toFixed(2) %></p>
+        
+        <blockquote style="margin: 20px 0; padding: 15px; background: #222; border-left: 4px solid #00bcd4;">
+            <strong>Description:</strong><br>
+            <%= product.description %>
+        </blockquote>
+
+        <p><strong>Availability:</strong> <%= product.stock_quantity %> units in inventory</p>
+
+        <form action="/cart" method="POST" style="margin-top: 25px;">
+            <input type="hidden" name="productId" value="<%= product.id %>">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" value="1" min="1" max="<%= product.stock_quantity %>" style="width: 80px; margin-bottom: 15px;">
+            <button type="submit" style="width: 100%; display: block;">Securely Add to Cart</button>
+        </form>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
