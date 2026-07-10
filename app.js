@@ -2,6 +2,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import shopRoutes from './src/routes/shopRoutes.js'; // 1. Added this import at the top
 
 const app = express();
 
@@ -18,9 +19,7 @@ app.use(express.static(path.join(__dirname, 'public'))); // Serves CSS/Images
 app.use(express.urlencoded({ extended: true }));       // Parses form submissions
 app.use(express.json());                               // Parses JSON data
 
-// 3. Temporary Test Route (We will move this to standard routing later!)
-app.get('/', (req, res) => {
-    res.render('pages/index', { title: 'Welcome to Our Professional Shop' });
-});
+// 3. Real Storefront Routes (Replaced the temporary test route)
+app.use('/', shopRoutes);
 
 export default app;
