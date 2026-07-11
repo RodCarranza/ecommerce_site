@@ -29,3 +29,52 @@ export const handleRegister = async (req, res) => {
         res.status(500).render('pages/register', { error: 'Server error during registration.' });
     }
 };
+
+export const renderLogin = (req, res) => {
+    res.render('pages/login', { error: null });
+};
+
+export const handleLogin = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        if (!email || !password) {
+            return res.render('pages/login', { error: 'All fields are required.' });
+        }
+
+        // 1. Look up user by email address
+        const user = await UserModel.getUserByEmail(email);
+        if (!user) {
+            return res.render('pages/login', { error: 'Invalid email or password combination.' });
+        }
+
+        // 2. Compare incoming plain text password against the hashed string in your db
+        const match = await bcrypt.compare(password, user.password); // Matches your schema's "password" column
+
+        if (!match) {
+            return res.render('pages/login', { error: 'Invalid email or password combination.' });
+        }
+
+        // 3. Password matched! Save the user profile to session state memory
+        req.session.user = {
+            id: user.id,
+            name: user.name,
+            email: user.email
+        };
+
+        // 4. Redirect home to the catalog
+        res.redirect('/');
+    } catch (error) {
+        console.error('Login Error:', error.message);
+        res.status(500).render('pages/login', { error: 'Server error encountered during authentication.' });
+    }
+};
+
+export const handleLogout = (req, res) => {
+    // Destroy the server memory file and wipe the browser cookie
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Logout Error:', err.message);
+        }
+        res.redirect('/');
+    });
+};

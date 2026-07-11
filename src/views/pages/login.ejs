@@ -1,0 +1,22 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #444; border-radius: 8px;">
+    <h2>Secure Vault Portal</h2>
+    
+    <% if (error) { %>
+        <p style="color: #ff5252; background: #331c1c; padding: 10px; border-radius: 4px;"><%= error %></p>
+    <% } %>
+
+    <form action="/login" method="POST">
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" required style="width: 100%; margin-bottom: 15px;">
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required style="width: 100%; margin-bottom: 25px;">
+
+        <button type="submit" style="width: 100%;">Sign Into Account</button>
+    </form>
+    <p style="margin-top: 15px; text-align: center;"><small>New user? <a href="/register">Create an account here</a></small></p>
+</div>
+
+<%- include('../partials/footer') %>

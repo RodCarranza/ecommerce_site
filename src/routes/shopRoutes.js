@@ -15,4 +15,9 @@ router.get('/products/:id', productController.renderProductDetail);
 router.get('/register', authController.renderRegister);
 router.post('/register', authController.handleRegister);
 
+// Autehntication endpoints
+router.get('/login', authController.renderLogin);
+router.post('/login', authController.handleLogin);
+router.get('/logout', authController.handleLogout);
+
 export default router;
