@@ -1,4 +1,5 @@
 import * as ProductModel from '../models/productModel.js';
+import * as ReviewModel from '../models/reviewModel.js';
 
 /**
  * Controller to handle rendering the homepage catalog layout
@@ -28,7 +29,7 @@ export const renderProductDetail = async (req, res) => {
             return res.status(404).send('Invalid Product ID configuration.');
         }
 
-        // Fetch just that single item using our secure model query
+        // 1. Fetch just that single item using our secure model query
         const product = await ProductModel.getProductById(productId);
 
         // If the product doesn't exist in our school database, throw a 404
@@ -36,8 +37,15 @@ export const renderProductDetail = async (req, res) => {
             return res.status(404).send('Product not found in our hardware vault.');
         }
 
-        // Render the new individual detail page template, passing the item data
-        res.render('pages/product-detail', { product });
+        // 2. 🌟 NEW: Fetch all reviews associated with this product
+        const reviews = await ReviewModel.getReviewsByProductId(productId);
+
+        // 3. Render the detail page template, passing product data, reviews, and session user
+        res.render('pages/product-detail', { 
+            product, 
+            reviews,
+            user: req.session.user || null // Safely pass the session user to toggle Edit/Delete buttons
+        });
     } catch (error) {
         console.error('❌ Controller Error fetching product details:', error.message);
         res.status(500).send('Server Error loading product details.');

@@ -30,4 +30,57 @@
     </div>
 </div>
 
+<!-- ========================================================================= -->
+<!-- 💬 REVIEWS & FEEDBACK SECTION -->
+<!-- ========================================================================= -->
+<hr style="border: 0; border-top: 1px solid #333; margin: 50px 0 30px 0;">
+
+<section class="reviews-section">
+    <h3 style="color: #ffb74d; margin-bottom: 25px;">💬 Customer Feedback & Reviews</h3>
+
+    <% if (reviews.length === 0) { %>
+        <!-- Case: No reviews exist for this product yet -->
+        <blockquote style="margin: 20px 0; padding: 20px; background: #222; border-left: 4px solid #888; border-radius: 4px;">
+            <p style="color: #aaa; margin: 0; font-style: italic;">No reviews yet for this product. Be the first to leave one!</p>
+        </blockquote>
+    <% } else { %>  <!-- FIXED: Added the missing closing curly brace '}' here -->
+        <!-- Grid/Stack list of reviews -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <% reviews.forEach(review => { %>
+                <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                    
+                    <!-- Review Header (User Name + Date + Rating) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                        <div>
+                            <strong style="color: #00bcd4;"><%= review.reviewer_name %></strong>
+                            <small style="color: #666; margin-left: 10px;">
+                                <%= new Date(review.created_at).toLocaleDateString() %>
+                            </small>
+                        </div>
+                        
+                        <!-- Star Rating display -->
+                        <div style="color: #ffb74d; font-size: 1.1rem;">
+                            <%= "⭐".repeat(review.rating) %>
+                        </div>
+                    </div>
+
+                    <!-- Comment text body -->
+                    <p style="color: #ccc; margin: 0; line-height: 1.6; font-style: italic;">
+                        "<%= review.comment %>"
+                    </p>
+
+                    <!-- Edit/Delete Action Placeholders (Wired up in Phase 2) -->
+                    <% if (locals.user && (user.id === review.user_id || user.role === 'admin')) { %>
+                        <div style="margin-top: 15px; display: flex; gap: 15px; justify-content: flex-end; font-size: 0.85rem;">
+                            <span style="color: #ffb74d; cursor: pointer; text-decoration: underline;">Edit</span>
+                            <span style="color: #ff5252; cursor: pointer; text-decoration: underline;">Delete</span>
+                        </div>
+                    <% } %>
+
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+</section>
+
 <%- include('../partials/footer') %>
