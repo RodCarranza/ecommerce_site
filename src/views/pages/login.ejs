@@ -3,8 +3,18 @@
 <div style="max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #444; border-radius: 8px;">
     <h2>Secure Vault Portal</h2>
     
-    <% if (error) { %>
-        <p style="color: #ff5252; background: #331c1c; padding: 10px; border-radius: 4px;"><%= error %></p>
+    <!-- SUCCESS ALERT (From successful registration redirect) -->
+    <% if (locals.success) { %>
+        <p style="color: #4caf50; background: #1c3321; padding: 10px; border-radius: 4px; border-left: 4px solid #4caf50;">
+            <%= success %>
+        </p>
+    <% } %>
+
+    <!-- ERROR ALERT -->
+    <% if (locals.error) { %>
+        <p style="color: #ff5252; background: #331c1c; padding: 10px; border-radius: 4px; border-left: 4px solid #ff5252;">
+            <%= error %>
+        </p>
     <% } %>
 
     <form action="/login" method="POST">
