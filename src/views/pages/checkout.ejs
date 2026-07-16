@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+
+<h2>Finalize Your Checkout</h2>
+<p>Confirm your shipping details to complete your order transaction.</p>
+
+<% if (error) { %>
+    <p style="color: #e53935; background: #ffebee; padding: 10px; border-radius: 4px;">⚠️ <%= error %></p>
+<% } %>
+
+<div style="display: flex; gap: 40px; margin-top: 20px; align-items: flex-start;">
+    
+    <!-- Left: Order Summary -->
+    <div style="flex: 1.5; background: #c9c6c6; padding: 20px; border-radius: 8px;">
+        <h3>Order Summary</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <tbody>
+                <% cartItems.forEach(item => { %>
+                    <tr style="border-bottom: 1px solid #bcb9b9;">
+                        <td style="padding: 10px 0;"><%= item.name %> <strong>x<%= item.quantity %></strong></td>
+                        <td style="text-align: right;">$<%= (parseFloat(item.price) * item.quantity).toFixed(2) %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <h3 style="text-align: right; margin-top: 15px; color: #00bcd4;">Total Due: $<%= subtotal.toFixed(2) %></h3>
+    </div>
+
+    <!-- Right: Shipping Details Form -->
+    <div style="flex: 1; background: #b4b4b4; padding: 20px; border-radius: 8px; border: 1px solid #333;">
+        <h3>Shipping Destination</h3>
+        <form action="/checkout" method="POST" style="margin-top: 15px;">
+            <label for="shippingAddress" style="display: block; margin-bottom: 5px;">Delivery Address:</label>
+            <textarea id="shippingAddress" name="shippingAddress" rows="4" style="width: 100%; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 10px; box-sizing: border-box;" placeholder="Enter complete address..." required></textarea>
+            
+            <button type="submit" style="width: 100%; margin-top: 15px; background: #00bcd4; color: #111; font-weight: bold; padding: 12px; border: none; border-radius: 4px; cursor: pointer;">
+                Authorize Purchase & Pay
+            </button>
+        </form>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

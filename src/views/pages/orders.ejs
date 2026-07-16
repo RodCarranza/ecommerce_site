@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+
+<h2>Your Order History</h2>
+<p>Track your active hardware orders and transaction histories below.</p>
+
+<% if (orders.length === 0) { %>
+    <blockquote style="margin: 30px 0; padding: 20px; background: #d6d3d3; border-left: 4px solid #00bcd4;">
+        <p>No transactions found. <a href="/" style="color: #00bcd4; text-decoration: underline;">Browse catalog</a> to place your first order!</p>
+    </blockquote>
+<% } else { %>
+    <% orders.forEach(order => { %>
+        <div style="background: #e0d7d7; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #00bcd4;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+                <div>
+                    <strong>Order Reference: ID #<%= order.id %></strong><br>
+                    <small style="color: #888;">Placed on: <%= new Date(order.created_at).toLocaleDateString() %></small>
+                </div>
+                <div>
+                    <span style="background: #d1c6c6; padding: 5px 10px; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; color: #00bcd4;">
+                        Status: <%= order.status %>
+                    </span>
+                </div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <% order.items.forEach(item => { %>
+                        <tr>
+                            <td style="padding: 5px 0; display: flex; align-items: center; gap: 15px;">
+                                <img src="<%= item.image_url %>" alt="<%= item.name %>" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                <span><%= item.name %> <strong>x<%= item.quantity %></strong></span>
+                            </td>
+                            <td style="text-align: right; color: #888;">
+                                Purchase Price: $<%= parseFloat(item.price_at_purchase).toFixed(2) %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+
+            <div style="text-align: right; margin-top: 15px; border-top: 1px solid #b6b2b2; padding-top: 10px;">
+                <strong>Shipping Address:</strong> <span style="color: #ccc;"><%= order.shipping_address %></span><br>
+                <h4 style="margin: 10px 0 0 0; color: #00bcd4;">Total Paid: $<%= parseFloat(order.total_price).toFixed(2) %></h4>
+            </div>
+        </div>
+    <% }) %>
+<% } %>
+
+<%- include('../partials/footer') %>
