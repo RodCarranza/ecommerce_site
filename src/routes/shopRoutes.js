@@ -3,6 +3,7 @@ import * as productController from '../controllers/productController.js';
 import * as authController from '../controllers/authController.js';
 import * as cartController from '../controllers/cartController.js';
 import * as orderController from '../controllers/orderController.js';
+import { isAdmin } from '../controllers/authMiddleware.js';
 
 const router = express.Router();
 
@@ -26,5 +27,9 @@ router.post('/cart/delete', cartController.deleteFromCart);  // Removes item fro
 router.get('/checkout', orderController.renderCheckout);
 router.post('/checkout', orderController.handleCheckout);
 router.get('/orders', orderController.renderOrderHistory);
+
+// -- Admin dashboard routes -- //
+router.get('/admin/dashboard', isAdmin, orderController.renderAdminDashboard);
+router.post('/admin/dashboard/update', isAdmin, orderController.handleUpdateStatus);
 
 export default router;

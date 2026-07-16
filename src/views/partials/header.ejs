@@ -22,10 +22,18 @@
                     <a href="/">Home Catalog</a>
                     <a href="/cart" style="margin-left: 15px;">Shopping Cart</a>
                     <a href="/orders" style="border-left: 1px solid #444; padding-left: 15px;">📦 My Orders</a>
+                    
+                    <!-- SAFE CHECK: Only evaluate role if user is definitely logged in -->
+                    <% if (locals.user && user.role === 'admin') { %>
+                        <a href="/admin/dashboard" style="color: #ffb74d; border-left: 1px solid #444; padding-left: 15px;">🛠️ Admin Panel</a>
+                    <% } %>
                 </div>
                 <div>
-                    <% if (user) { %>
-                        <span style="margin-right: 15px; color: #00bcd4;">Welcome, <strong><%= user.name %></strong></span>
+                    <!-- SAFE CHECK: Wrap welcome message and logout option -->
+                    <% if (locals.user) { %>
+                        <span style="margin-right: 15px; color: #00bcd4;">
+                            Welcome, <strong><%= user.name || user.name %></strong>
+                        </span>
                         <a href="/logout" style="color: #ff5252;">Logout</a>
                     <% } else { %>
                         <a href="/login" style="margin-right: 15px;">Login</a>

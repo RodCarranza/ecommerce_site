@@ -107,3 +107,32 @@ export const getOrderDetails = async (orderId, userId) => {
     const { rows } = await pool.query(queryText, [orderId, userId]);
     return rows;
 };
+
+/**
+ * Fetches every single non-cart order in the system for admin monitoring
+ */
+export const getAllSystemOrders = async () => {
+    const queryText = `
+        SELECT o.id, o.status, o.shipping_address, o.total_price, o.created_at, u.name, u.email
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+        WHERE o.status != 'cart'
+        ORDER BY o.created_at DESC;
+    `;
+    const { rows } = await pool.query(queryText);
+    return rows;
+};
+
+/**
+ * Updates an order's status (e.g., 'placed' -> 'shipped')
+ */
+export const updateOrderStatus = async (orderId, newStatus) => {
+    const queryText = `
+        UPDATE orders 
+        SET status = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
+        RETURNING *;
+    `;
+    const { rows } = await pool.query(queryText, [newStatus, orderId]);
+    return rows[0];
+};

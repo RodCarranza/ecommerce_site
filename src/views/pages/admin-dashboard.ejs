@@ -1,0 +1,78 @@
+<%- include('../partials/header') %>
+
+<h2>🛠️ Admin Order Control Panel</h2>
+<p>Monitor all client purchases and manage fulfillment workflows here.</p>
+
+<% if (orders.length === 0) { %>
+    <blockquote style="margin: 30px 0; padding: 20px; background: #222; border-left: 4px solid #ffb74d;">
+        <p>No transactions have been processed by customers yet.</p>
+    </blockquote>
+<% } else { %>
+    <div style="display: flex; flex-direction: column; gap: 25px; margin-top: 25px;">
+        <% orders.forEach(order => { %>
+            <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; border-left: 5px solid #ffb74d;">
+                
+                <!-- Order Metadata Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #2d2d2d; padding-bottom: 15px; margin-bottom: 15px;">
+                    <div>
+                        <strong style="font-size: 1.1rem; color: #ffb74d;">Order ID: #<%= order.id %></strong><br>
+                        <!-- FIXED: Swapped out order.username for order.name to match schema -->
+                        <span style="color: #aaa; font-size: 0.9rem;">Customer: <strong><%= order.name %></strong> (<%= order.email %>)</span><br>
+                        <small style="color: #666;">Submitted: <%= new Date(order.created_at).toLocaleString() %></small>
+                    </div>
+                    
+                    <!-- Interactive Status Control Form -->
+                    <div style="text-align: right;">
+                        <form action="/admin/dashboard/update" method="POST" style="display: inline-flex; gap: 10px; align-items: center;">
+                            <input type="hidden" name="orderId" value="<%= order.id %>">
+                            <label for="status-<%= order.id %>" style="color: #aaa; font-size: 0.9rem;">Status Workflow:</label>
+                            <select id="status-<%= order.id %>" name="newStatus" style="background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 5px 10px; cursor: pointer;">
+                                <!-- FIXED: Options now match the table status CHECK constraint values perfectly -->
+                                <option value="placed" <%= order.status === 'placed' ? 'selected' : '' %>>Placed</option>
+                                <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                            </select>
+                            <button type="submit" style="background: #ffb74d; color: #111; font-weight: bold; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer;">Update</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Purchased Items Grid -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                    <thead>
+                        <tr style="text-align: left; color: #888; border-bottom: 1px solid #2d2d2d; font-size: 0.9rem;">
+                            <th style="padding-bottom: 8px;">Line Item Name</th>
+                            <th style="padding-bottom: 8px; text-align: center; width: 100px;">Qty Purchased</th>
+                            <th style="padding-bottom: 8px; text-align: right; width: 150px;">Unit Purchase Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.items.forEach(item => { %>
+                            <tr style="border-bottom: 1px dashed #2d2d2d; font-size: 0.95rem;">
+                                <td style="padding: 10px 0;"><%= item.name %></td>
+                                <td style="padding: 10px 0; text-align: center; font-weight: bold;"><%= item.quantity %></td>
+                                <td style="padding: 10px 0; text-align: right; color: #00bcd4;">$<%= parseFloat(item.price_at_purchase).toFixed(2) %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+
+                <!-- Shipping and Financial Subtotal Details -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; background: #111; padding: 12px 15px; border-radius: 4px;">
+                    <div>
+                        <small style="color: #666; text-transform: uppercase; font-weight: bold;">Shipping Destination:</small>
+                        <p style="margin: 3px 0 0 0; font-size: 0.95rem; color: #ccc;"><%= order.shipping_address %></p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="color: #666; font-size: 0.85rem; font-weight: bold;">Order Subtotal Paid:</span>
+                        <h4 style="margin: 0; font-size: 1.25rem; color: #ffb74d;">$<%= parseFloat(order.total_price).toFixed(2) %></h4>
+                    </div>
+                </div>
+
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+
+<%- include('../partials/footer') %>

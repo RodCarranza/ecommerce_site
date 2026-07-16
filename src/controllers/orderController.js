@@ -1,5 +1,6 @@
 import * as OrderModel from '../models/orderModel.js';
 import * as CartModel from '../models/cartModel.js';
+import pool from '../config/db.js';
 
 /**
  * Renders the checkout page if the user has items in their cart
@@ -21,7 +22,7 @@ export const renderCheckout = async (req, res) => {
 
         res.render('pages/checkout', { cartItems, subtotal, error: null });
     } catch (error) {
-        console.error('❌ Checkout Render Error:', error.message);
+        console.error('Checkout Render Error:', error.message);
         res.status(500).send('Server Error preparing checkout.');
     }
 };
@@ -82,5 +83,46 @@ export const renderOrderHistory = async (req, res) => {
     } catch (error) {
         console.error('Order History Error:', error.message);
         res.status(500).send('Server Error loading your orders.');
+    }
+};
+
+/**
+ * Renders the Admin Dashboard showing all orders
+ */
+export const renderAdminDashboard = async (req, res) => {
+    try {
+        const orders = await OrderModel.getAllSystemOrders();
+
+        // Populate items for every system order
+        const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+            const adminItemsQuery = `
+                SELECT oi.quantity, oi.price_at_purchase, p.name 
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                WHERE oi.order_id = $1;
+            `;
+            const { rows } = await pool.query(adminItemsQuery, [order.id]);
+            
+            return { ...order, items: rows };
+        }));
+
+        res.render('pages/admin-dashboard', { orders: ordersWithDetails });
+    } catch (error) {
+        console.error('Admin Dashboard Error:', error.message);
+        res.status(500).send('Server error loading Admin Panel.');
+    }
+};
+
+/**
+ * Handles toggling order state updates
+ */
+export const handleUpdateStatus = async (req, res) => {
+    const { orderId, newStatus } = req.body;
+    try {
+        await OrderModel.updateOrderStatus(orderId, newStatus);
+        res.redirect('/admin/dashboard');
+    } catch (error) {
+        console.error('Status Update Error:', error.message);
+        res.status(500).send('Failed to update status.');
     }
 };

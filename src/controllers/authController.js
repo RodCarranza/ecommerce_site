@@ -48,7 +48,7 @@ export const handleLogin = async (req, res) => {
         }
 
         // 2. Compare incoming plain text password against the hashed string in your db
-        const match = await bcrypt.compare(password, user.password); // Matches your schema's "password" column
+        const match = await bcrypt.compare(password, user.password); // Matches your schema's "password" columns
 
         if (!match) {
             return res.render('pages/login', { error: 'Invalid email or password combination.' });
@@ -58,7 +58,8 @@ export const handleLogin = async (req, res) => {
         req.session.user = {
             id: user.id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            role: user.role
         };
 
         // 4. Redirect home to the catalog
