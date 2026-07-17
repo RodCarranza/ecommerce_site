@@ -14,6 +14,13 @@ export const handleCreateReview = async (req, res, next) => {
         return next(err);
     }
 
+    // NEW ACCESSIBILITY GUARD: Block employees from submitting reviews
+    if (req.session.user.role === 'employee') {
+        const err = new Error('Clearance Restriction: Operational staff accounts are unauthorized to submit public catalog feedback.');
+        err.statusCode = 403; // Forbidden
+        return next(err);
+    }
+
     const userId = req.session.user.id;
     const numericRating = parseInt(rating, 10);
 
@@ -89,10 +96,9 @@ export const handleDeleteReview = async (req, res, next) => {
     }
 
     const userId = req.session.user.id;
-    const isAdmin = req.session.user.role === 'admin';
-
+    const isEmployee = req.session.user.role === 'employee';
     try {
-        const deletedReview = await ReviewModel.deleteReview(reviewId, userId, isAdmin);
+        const deletedReview = await ReviewModel.deleteReview(reviewId, userId, isEmployee);
 
         if (!deletedReview) {
             const err = new Error('Unauthorized clearance. You are not permitted to remove this record.');

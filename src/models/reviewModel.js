@@ -45,11 +45,11 @@ export const updateReview = async (reviewId, userId, rating, comment) => {
 /**
  * Delete a review (ensures the user deleting it is the author or an admin)
  */
-export const deleteReview = async (reviewId, userId, isAdmin) => {
+export const deleteReview = async (reviewId, userId, isEmployee) => {
     let queryText;
     let params;
 
-    if (isAdmin) {
+    if (isEmployee) {
         // Admins can delete any review
         queryText = `DELETE FROM reviews WHERE id = $1 RETURNING *;`;
         params = [reviewId];

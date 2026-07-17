@@ -87,29 +87,29 @@ export const renderOrderHistory = async (req, res) => {
 };
 
 /**
- * Renders the Admin Dashboard showing all orders
+ * Renders the employee Dashboard showing all orders
  */
-export const renderAdminDashboard = async (req, res) => {
+export const renderEmployeeDashboard = async (req, res) => {
     try {
         const orders = await OrderModel.getAllSystemOrders();
 
         // Populate items for every system order
         const ordersWithDetails = await Promise.all(orders.map(async (order) => {
-            const adminItemsQuery = `
+            const employeeItemsQuery = `
                 SELECT oi.quantity, oi.price_at_purchase, p.name 
                 FROM order_items oi
                 JOIN products p ON oi.product_id = p.id
                 WHERE oi.order_id = $1;
             `;
-            const { rows } = await pool.query(adminItemsQuery, [order.id]);
+            const { rows } = await pool.query(employeeItemsQuery, [order.id]);
             
             return { ...order, items: rows };
         }));
 
-        res.render('pages/admin-dashboard', { orders: ordersWithDetails });
+        res.render('pages/employee-dashboard', { orders: ordersWithDetails });
     } catch (error) {
-        console.error('Admin Dashboard Error:', error.message);
-        res.status(500).send('Server error loading Admin Panel.');
+        console.error('employee Dashboard Error:', error.message);
+        res.status(500).send('Server error loading employee Panel.');
     }
 };
 
@@ -120,7 +120,7 @@ export const handleUpdateStatus = async (req, res) => {
     const { orderId, newStatus } = req.body;
     try {
         await OrderModel.updateOrderStatus(orderId, newStatus);
-        res.redirect('/admin/dashboard');
+        res.redirect('/employee/dashboard');
     } catch (error) {
         console.error('Status Update Error:', error.message);
         res.status(500).send('Failed to update status.');

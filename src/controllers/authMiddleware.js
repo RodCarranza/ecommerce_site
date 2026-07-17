@@ -1,14 +1,14 @@
 /**
- * Middleware to restrict route access to administrators only
+ * Middleware to restrict route access to employees only
  */
-export const isAdmin = (req, res, next) => {
+export const isEmployee = (req, res, next) => {
     // 1. Check if user is logged in
     if (!req.session.user) {
         return res.redirect('/login');
     }
 
-    // 2. Check if user's role matches 'admin' exactly
-    if (req.session.user.role === 'admin') {
+    // 2. Check if user's role matches 'employee' exactly
+    if (req.session.user.role === 'employee') {
         return next(); // Authorized! Proceed to the route.
     }
 

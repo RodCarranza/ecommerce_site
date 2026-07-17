@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
 
-<h2>Admin Order Control Panel</h2>
+<h2>Employee Order Control Panel</h2>
 <p>Monitor all client purchases and manage fulfillment workflows here.</p>
 
 <% if (orders.length === 0) { %>
@@ -23,7 +23,7 @@
                     
                     <!-- Interactive Status Control Form -->
                     <div style="text-align: right;">
-                        <form action="/admin/dashboard/update" method="POST" style="display: inline-flex; gap: 10px; align-items: center;">
+                        <form action="/employee/dashboard/update" method="POST" style="display: inline-flex; gap: 10px; align-items: center;">
                             <input type="hidden" name="orderId" value="<%= order.id %>">
                             <label for="status-<%= order.id %>" style="color: #aaa; font-size: 0.9rem;">Status Workflow:</label>
                             <select id="status-<%= order.id %>" name="newStatus" style="background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 5px 10px; cursor: pointer;">
