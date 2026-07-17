@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+
+<div style="text-align: center; max-width: 600px; margin: 80px auto; padding: 40px 20px; background: #1a1a1a; border: 1px solid #ff5252; border-radius: 8px;">
+    
+    <!-- Large Warning Icon / Status Code -->
+    <div style="font-size: 5rem; color: #ff5252; margin-bottom: 20px;">
+         <%= statusCode %>
+    </div>
+    
+    <h2 style="color: #ffb74d; margin-top: 0; margin-bottom: 15px;">
+        System Anomaly Detected
+    </h2>
+    
+    <blockquote style="background: #2b1616; border-left: 4px solid #ff5252; padding: 15px; margin: 20px 0; text-align: left; border-radius: 4px;">
+        <strong style="color: #ff5252;">Message:</strong><br>
+        <span style="color: #ccc; font-style: italic;">"<%= message %>"</span>
+    </blockquote>
+    
+    <p style="color: #888; font-size: 0.9rem; margin-bottom: 30px; line-height: 1.5;">
+        The system logs have registered this anomaly. If you believe this is a credential failure or catalog corruption, please report it to our engineering portal.
+    </p>
+
+    <a href="/" style="background: #00bcd4; color: black; font-weight: bold; text-decoration: none; padding: 12px 25px; border-radius: 4px; display: inline-block;">
+        &larr; Return to Catalog Workspace
+    </a>
+</div>
+
+<%- include('../partials/footer') %>
