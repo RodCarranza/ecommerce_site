@@ -4,12 +4,19 @@ import * as authController from '../controllers/authController.js';
 import * as cartController from '../controllers/cartController.js';
 import * as orderController from '../controllers/orderController.js';
 import { isAdmin } from '../controllers/authMiddleware.js';
+import * as ReviewController from '../controllers/reviewController.js';
 
 const router = express.Router();
 
 // -- Product routes -- //
 router.get('/', productController.renderCatalog);
 router.get('/products/:id', productController.renderProductDetail);
+
+// 1. Route to handle submitting a new review
+router.post('/products/:id/review', ReviewController.handleCreateReview);
+
+// 2. Route to handle deleting a review (receives both keys so we can redirect back to the product page)
+router.post('/products/:productId/review/:reviewId/delete', ReviewController.handleDeleteReview);
 
 // -- Authentication Routes -- //
 router.get('/register', authController.renderRegister);
