@@ -37,7 +37,7 @@ export const renderProductDetail = async (req, res) => {
             return res.status(404).send('Product not found in our hardware vault.');
         }
 
-        // 2. 🌟 NEW: Fetch all reviews associated with this product
+        // 2. Fetch all reviews associated with this product
         const reviews = await ReviewModel.getReviewsByProductId(productId);
 
         // 3. Render the detail page template, passing product data, reviews, and session user
@@ -47,7 +47,7 @@ export const renderProductDetail = async (req, res) => {
             user: req.session.user || null // Safely pass the session user to toggle Edit/Delete buttons
         });
     } catch (error) {
-        console.error('❌ Controller Error fetching product details:', error.message);
+        console.error('Controller Error fetching product details:', error.message);
         res.status(500).send('Server Error loading product details.');
     }
 };

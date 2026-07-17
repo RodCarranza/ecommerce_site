@@ -18,6 +18,9 @@ router.post('/products/:id/review', ReviewController.handleCreateReview);
 // 2. Route to handle deleting a review (receives both keys so we can redirect back to the product page)
 router.post('/products/:productId/review/:reviewId/delete', ReviewController.handleDeleteReview);
 
+// 3. Route to handle updating an existing review
+router.post('/products/:productId/review/:reviewId/edit', ReviewController.handleUpdateReview);
+
 // -- Authentication Routes -- //
 router.get('/register', authController.renderRegister);
 router.post('/register', authController.handleRegister);

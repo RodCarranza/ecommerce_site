@@ -37,7 +37,7 @@ const seedDatabase = async () => {
 
         // Clean out any existing products to prevent massive duplicates if re-run
         await pool.query('TRUNCATE TABLE order_items, reviews, products CASCADE;');
-        console.log('🧹 Old product data cleared safely.');
+        console.log('Old product data cleared safely.');
 
         for (const product of mockProducts) {
             const queryText = `

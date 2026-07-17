@@ -65,7 +65,7 @@
         </div>
     <% } else { %>
         <p style="background: #222; padding: 12px; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid #ffb74d;">
-            🔑 <a href="/login" style="color: #ffb74d; text-decoration: underline;">Log in to your Secure Portal account</a> to leave a product review.
+            🔑 <a href="/login" style="color: #ffb74d; text-decoration: underline;">Log in to your account</a> to leave a product review.
         </p>
     <% } %>
 
@@ -78,50 +78,93 @@
             <% reviews.forEach(review => { %>
                 <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
                     
-                    <!-- Review Header -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                        <div>
-                            <strong style="color: #00bcd4;"><%= review.reviewer_name %></strong>
-                            <small style="color: #666; margin-left: 10px;">
-                                <%= new Date(review.created_at).toLocaleDateString() %>
-                            </small>
+                    <!-- 👁️ STATE A: STATIC DISPLAY PANEL -->
+                    <div id="review-display-<%= review.id %>">
+                        <!-- Review Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                            <div>
+                                <strong style="color: #00bcd4;"><%= review.reviewer_name %></strong>
+                                <small style="color: #666; margin-left: 10px;">
+                                    <%= new Date(review.created_at).toLocaleDateString() %>
+                                </small>
+                            </div>
+                            <div style="color: #ffb74d; font-size: 1.1rem;">
+                                <%= "⭐".repeat(review.rating) %>
+                            </div>
                         </div>
-                        <div style="color: #ffb74d; font-size: 1.1rem;">
-                            <%= "⭐".repeat(review.rating) %>
-                        </div>
+
+                        <!-- Comment Text -->
+                        <p style="color: #ccc; margin: 0; line-height: 1.6; font-style: italic;">
+                            "<%= review.comment %>"
+                        </p>
+
+                        <!-- Actions Bar -->
+                        <% if (locals.user && (user.id === review.user_id || user.role === 'admin')) { %>
+                            <div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 15px; align-items: center; font-size: 0.85rem;">
+                                
+                                <!-- Trigger Edit Mode (Only available to the explicit author) -->
+                                <% if (user.id === review.user_id) { %>
+                                    <button type="button" onclick="showEdit('<%= review.id %>')" style="background: none; border: none; color: #ffb74d; text-decoration: underline; cursor: pointer; font-size: 0.85rem; padding: 0;">
+                                        Edit
+                                    </button>
+                                <% } %>
+
+                                <!-- Initial State: Simple Delete Link -->
+                                <div id="delete-actions-<%= review.id %>">
+                                    <button type="button" onclick="showConfirm('<%= review.id %>')" style="background: none; border: none; color: #ff5252; text-decoration: underline; cursor: pointer; font-size: 0.85rem; padding: 0;">
+                                        Delete
+                                    </button>
+                                </div>
+
+                                <!-- Interactive State: Confirmation Panel (Hidden by default) -->
+                                <div id="confirm-panel-<%= review.id %>" style="display: none; gap: 10px; align-items: center; background: #2c1616; padding: 6px 12px; border-radius: 4px; border: 1px solid #5c2626;">
+                                    <span style="color: #ffb74d; font-weight: bold; margin-right: 5px;">Confirm delete?</span>
+                                    
+                                    <form action="/products/<%= product.id %>/review/<%= review.id %>/delete" method="POST" style="display: inline; margin: 0; padding: 0;">
+                                        <button type="submit" style="background: #ff5252; border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">
+                                            Yes, Delete
+                                        </button>
+                                    </form>
+                                    
+                                    <button type="button" onclick="hideConfirm('<%= review.id %>')" style="background: #444; border: none; color: #ccc; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        <% } %>
                     </div>
 
-                    <!-- Comment Text -->
-                    <p style="color: #ccc; margin: 0; line-height: 1.6; font-style: italic;">
-                        "<%= review.comment %>"
-                    </p>
-
-                    <!-- 🛠️ PROFESSIONAL INLINE DELETION CONTROL -->
-                    <% if (locals.user && (user.id === review.user_id || user.role === 'admin')) { %>
-                        <div style="margin-top: 15px; display: flex; justify-content: flex-end; font-size: 0.85rem;">
-                            
-                            <!-- Initial State: Simple Delete Link -->
-                            <div id="delete-actions-<%= review.id %>">
-                                <button type="button" onclick="showConfirm('<%= review.id %>')" style="background: none; border: none; color: #ff5252; text-decoration: underline; cursor: pointer; font-size: 0.85rem; padding: 0;">
-                                    Delete
-                                </button>
-                            </div>
-
-                            <!-- Interactive State: Confirmation Panel (Hidden by default) -->
-                            <div id="confirm-panel-<%= review.id %>" style="display: none; gap: 10px; align-items: center; background: #2c1616; padding: 6px 12px; border-radius: 4px; border: 1px solid #5c2626;">
-                                <span style="color: #ffb74d; font-weight: bold; margin-right: 5px;">Confirm delete?</span>
+                    <!-- 📝 STATE B: INLINE EDIT PANEL (Hidden by default) -->
+                    <% if (locals.user && user.id === review.user_id) { %>
+                        <div id="review-edit-<%= review.id %>" style="display: none;">
+                            <h4 style="margin: 0 0 15px 0; color: #ffb74d;">✏️ Edit Your Feedback</h4>
+                            <form action="/products/<%= product.id %>/review/<%= review.id %>/edit" method="POST">
                                 
-                                <form action="/products/<%= product.id %>/review/<%= review.id %>/delete" method="POST" style="display: inline; margin: 0; padding: 0;">
-                                    <button type="submit" style="background: #ff5252; border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">
-                                        Yes, Delete
+                                <div style="margin-bottom: 12px;">
+                                    <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">Modify Rating:</label>
+                                    <select name="rating" required style="background: #2b2b2b; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px;">
+                                        <option value="5" <%= review.rating === 5 ? 'selected' : '' %>>⭐⭐⭐⭐⭐ (5)</option>
+                                        <option value="4" <%= review.rating === 4 ? 'selected' : '' %>>⭐⭐⭐⭐ (4)</option>
+                                        <option value="3" <%= review.rating === 3 ? 'selected' : '' %>>⭐⭐⭐ (3)</option>
+                                        <option value="2" <%= review.rating === 2 ? 'selected' : '' %>>⭐⭐ (2)</option>
+                                        <option value="1" <%= review.rating === 1 ? 'selected' : '' %>>⭐ (1)</option>
+                                    </select>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">Update Comment:</label>
+                                    <textarea name="comment" rows="3" required style="width: 100%; padding: 10px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;"><%= review.comment %></textarea>
+                                </div>
+
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="submit" style="background: #ffb74d; color: black; font-weight: bold; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                        Save Changes
                                     </button>
-                                </form>
-                                
-                                <button type="button" onclick="hideConfirm('<%= review.id %>')" style="background: #444; border: none; color: #ccc; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-                                    Cancel
-                                </button>
-                            </div>
-
+                                    <button type="button" onclick="hideEdit('<%= review.id %>')" style="background: #444; color: white; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     <% } %>
 
@@ -131,8 +174,9 @@
     <% } %>
 </section>
 
-<!-- 💡 Mini controller script to toggle confirm state dynamically -->
+<!-- Front-end layout switcher script -->
 <script>
+    // Delete Confirmation toggles
     function showConfirm(reviewId) {
         document.getElementById('delete-actions-' + reviewId).style.display = 'none';
         document.getElementById('confirm-panel-' + reviewId).style.display = 'flex';
@@ -142,4 +186,18 @@
         document.getElementById('delete-actions-' + reviewId).style.display = 'block';
         document.getElementById('confirm-panel-' + reviewId).style.display = 'none';
     }
+
+    // Edit Panel toggles
+    function showEdit(reviewId) {
+        document.getElementById('review-display-' + reviewId).style.display = 'none';
+        document.getElementById('review-edit-' + reviewId).style.display = 'block';
+    }
+
+    // Resets back to default layout view
+    function hideEdit(reviewId) {
+        document.getElementById('review-display-' + reviewId).style.display = 'block';
+        document.getElementById('review-edit-' + reviewId).style.display = 'none';
+    }
 </script>
+
+<%- include('../partials/footer') %>

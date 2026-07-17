@@ -1,4 +1,3 @@
-// src/controllers/reviewController.js
 import * as ReviewModel from '../models/reviewModel.js';
 
 /**
@@ -60,5 +59,41 @@ export const handleDeleteReview = async (req, res) => {
     } catch (error) {
         console.error('Delete Review Error:', error.message);
         res.status(500).send('Server error encountered while attempting to delete this review.');
+    }
+};
+
+/**
+ * Handle POST request to update an existing review
+ */
+export const handleUpdateReview = async (req, res) => {
+    const productId = parseInt(req.params.productId, 10);
+    const reviewId = parseInt(req.params.reviewId, 10);
+    const { rating, comment } = req.body;
+
+    // 1. Authorization check
+    if (!req.session.user) {
+        return res.status(401).send('Unauthorized. You must be logged in to modify reviews.');
+    }
+
+    const userId = req.session.user.id;
+    const numericRating = parseInt(rating, 10);
+
+    try {
+        if (!comment || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
+            return res.status(400).send('Invalid modifications. Review text cannot be blank.');
+        }
+
+        // 2. Execute the update through the model (which secures updates via WHERE user_id)
+        const updatedReview = await ReviewModel.updateReview(reviewId, userId, numericRating, comment);
+
+        if (!updatedReview) {
+            return res.status(403).send('Unauthorized operation. You can only edit your own reviews.');
+        }
+
+        // 3. Smooth redirect back to see the updated comment
+        res.redirect(`/products/${productId}`);
+    } catch (error) {
+        console.error('Update Review Error:', error.message);
+        res.status(500).send('Server error encountered while updating your review.');
     }
 };

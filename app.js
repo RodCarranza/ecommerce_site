@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
-import shopRoutes from './src/routes/shopRoutes.js'; // 1. Added this import at the top
+import shopRoutes from './src/routes/shopRoutes.js';
 
 const app = express();
 
@@ -22,7 +22,7 @@ app.use(express.json());                               // Parses JSON data
 
 // 3. Configure Secure Sessions 
 app.use(session({
-    secret: 'byu_cse_super_secret_vault_key', // In production, this would go in your .env file
+    secret: 'byu_cse_super_secret_vault_key', // In production, this would go in .env file
     resave: false,                             // Don't save session if unmodified
     saveUninitialized: false,                  // Don't create session until something is stored
     cookie: { 

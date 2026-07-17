@@ -1,4 +1,3 @@
-// src/controllers/cartController.js
 import * as CartModel from '../models/cartModel.js';
 
 /**
