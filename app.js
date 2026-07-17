@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
 import shopRoutes from './src/routes/shopRoutes.js';
+import { sanitizeBody } from './src/middleware/sanitizeMiddleware.js';
 
 const app = express();
 
@@ -17,8 +18,13 @@ app.set('views', path.join(__dirname, 'src', 'views'));
 
 // 2. Middleware Pipeline
 app.use(express.static(path.join(__dirname, 'public'))); // Serves CSS/Images
-app.use(express.urlencoded({ extended: true }));       // Parses form submissions
+
+// Parse incoming request bodies BEFORE sanitizing them
 app.use(express.json());                               // Parses JSON data
+app.use(express.urlencoded({ extended: true }));       // Parses form submissions
+
+// Global Input Sanitizer (Intercepts req.body to strip toxic HTML/XSS payloads)
+app.use(sanitizeBody);
 
 // 3. Configure Secure Sessions 
 app.use(session({
@@ -37,7 +43,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// 5. Real Storefront Routes (Replaced the temporary test route)
+// 5. Real Storefront Routes
 app.use('/', shopRoutes);
 
 export default app;

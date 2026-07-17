@@ -3,97 +3,105 @@ import * as ReviewModel from '../models/reviewModel.js';
 /**
  * Handle POST request to submit a new review
  */
-export const handleCreateReview = async (req, res) => {
+export const handleCreateReview = async (req, res, next) => {
     const productId = parseInt(req.params.id, 10);
     const { rating, comment } = req.body;
 
-    // Safety checks
+    // 1. Session check
     if (!req.session.user) {
-        return res.status(401).send('Unauthorized. You must be logged in to leave a review.');
+        const err = new Error('Access denied. You must be authenticated to post feedback.');
+        err.statusCode = 401; // Unauthorized
+        return next(err);
     }
 
     const userId = req.session.user.id;
     const numericRating = parseInt(rating, 10);
 
     try {
-        if (!comment || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
-            return res.status(400).send('Invalid rating value or blank review text.');
+        // 2. Input validation: reject blank comments (after sanitization stripped any tags)
+        if (!comment || comment.trim() === '' || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
+            const err = new Error('Invalid submissions detected. Reviews must contain clean, non-empty text and a rating from 1-5.');
+            err.statusCode = 400; // Bad Request
+            return next(err);
         }
 
-        // Save to database using parameterized query
+        // Save sanitized review in the database
         await ReviewModel.createReview(productId, userId, numericRating, comment);
 
-        // Redirect back to the product details page to see the new review instantly!
         res.redirect(`/products/${productId}`);
     } catch (error) {
-        console.error('Create Review Error:', error.message);
-        res.status(500).send('Server error encountered while posting your review.');
-    }
-};
-
-/**
- * Handle POST request to delete a review (guarded by authorization check)
- */
-export const handleDeleteReview = async (req, res) => {
-    const productId = parseInt(req.params.productId, 10);
-    const reviewId = parseInt(req.params.reviewId, 10);
-
-    // 1. Session check
-    if (!req.session.user) {
-        return res.status(401).send('Unauthorized. You must log in to delete reviews.');
-    }
-
-    const userId = req.session.user.id;
-    const isAdmin = req.session.user.role === 'admin';
-
-    try {
-        // 2. Attempt deletion (the model internally enforces authorization: only admin or the creator can delete)
-        const deletedReview = await ReviewModel.deleteReview(reviewId, userId, isAdmin);
-
-        if (!deletedReview) {
-            return res.status(403).send('Unauthorized operation. You cannot delete reviews belonging to other users.');
-        }
-
-        // Redirect back to the product page
-        res.redirect(`/products/${productId}`);
-    } catch (error) {
-        console.error('Delete Review Error:', error.message);
-        res.status(500).send('Server error encountered while attempting to delete this review.');
+        next(error); // Pipe unexpected DB errors to the centralized handler
     }
 };
 
 /**
  * Handle POST request to update an existing review
  */
-export const handleUpdateReview = async (req, res) => {
+export const handleUpdateReview = async (req, res, next) => {
     const productId = parseInt(req.params.productId, 10);
     const reviewId = parseInt(req.params.reviewId, 10);
     const { rating, comment } = req.body;
 
-    // 1. Authorization check
+    // 1. Session check
     if (!req.session.user) {
-        return res.status(401).send('Unauthorized. You must be logged in to modify reviews.');
+        const err = new Error('Access denied. Log in to modify feedback records.');
+        err.statusCode = 401;
+        return next(err);
     }
 
     const userId = req.session.user.id;
     const numericRating = parseInt(rating, 10);
 
     try {
-        if (!comment || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
-            return res.status(400).send('Invalid modifications. Review text cannot be blank.');
+        // 2. Input validation
+        if (!comment || comment.trim() === '' || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
+            const err = new Error('Modifications rejected. Review updates cannot be left blank.');
+            err.statusCode = 400;
+            return next(err);
         }
 
-        // 2. Execute the update through the model (which secures updates via WHERE user_id)
+        // 3. Update database query
         const updatedReview = await ReviewModel.updateReview(reviewId, userId, numericRating, comment);
 
         if (!updatedReview) {
-            return res.status(403).send('Unauthorized operation. You can only edit your own reviews.');
+            const err = new Error('Unauthorized operational clearance. You do not own this review.');
+            err.statusCode = 403; // Forbidden
+            return next(err);
         }
 
-        // 3. Smooth redirect back to see the updated comment
         res.redirect(`/products/${productId}`);
     } catch (error) {
-        console.error('Update Review Error:', error.message);
-        res.status(500).send('Server error encountered while updating your review.');
+        next(error);
+    }
+};
+
+/**
+ * Handle POST request to delete a review
+ */
+export const handleDeleteReview = async (req, res, next) => {
+    const productId = parseInt(req.params.productId, 10);
+    const reviewId = parseInt(req.params.reviewId, 10);
+
+    if (!req.session.user) {
+        const err = new Error('Access denied. Log in to remove feedback records.');
+        err.statusCode = 401;
+        return next(err);
+    }
+
+    const userId = req.session.user.id;
+    const isAdmin = req.session.user.role === 'admin';
+
+    try {
+        const deletedReview = await ReviewModel.deleteReview(reviewId, userId, isAdmin);
+
+        if (!deletedReview) {
+            const err = new Error('Unauthorized clearance. You are not permitted to remove this record.');
+            err.statusCode = 403;
+            return next(err);
+        }
+
+        res.redirect(`/products/${productId}`);
+    } catch (error) {
+        next(error);
     }
 };
