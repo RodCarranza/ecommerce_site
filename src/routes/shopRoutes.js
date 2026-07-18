@@ -6,6 +6,7 @@ import * as orderController from '../controllers/orderController.js';
 import { renderManageUsers, handleDeleteUser } from '../controllers/userController.js';
 import { isAdmin, isEmployee } from '../controllers/authMiddleware.js';
 import * as ReviewController from '../controllers/reviewController.js';
+import { handleUpdateDescription } from '../controllers/productController.js';
 
 const router = express.Router();
 
@@ -53,5 +54,8 @@ router.post('/products/:id/edit', productController.handleUpdateProduct);
 // -- Secure User Directory Administration Infrastructure -- //
 router.get('/admin/users', isAdmin, renderManageUsers);
 router.post('/admin/users/:id/delete', isAdmin, handleDeleteUser);
+
+// -- Secure Catalog Administration Infrastructure -- //
+router.post('/admin/products/:id/edit-description', isAdmin, handleUpdateDescription);
 
 export default router;

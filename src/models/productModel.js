@@ -48,3 +48,12 @@ export const updateProductDetails = async (id, name, price, stockQuantity) => {
     const { rows } = await pool.query(queryText, [name, price, stockQuantity, id]);
     return rows[0];
 };
+
+/**
+ * Persist an updated description string to a specific product record
+ */
+export const updateProductDescription = async (productId, description) => {
+    const query = 'UPDATE products SET description = $1 WHERE id = $2 RETURNING id;';
+    const { rows } = await pool.query(query, [description, productId]);
+    return rows[0];
+};

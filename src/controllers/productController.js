@@ -81,3 +81,35 @@ export const handleUpdateProduct = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * Action handler to process product description modifications
+ */
+export const handleUpdateDescription = async (req, res, next) => {
+    const productId = parseInt(req.params.id, 10);
+    const { description } = req.body;
+
+    try {
+        // Validation Guard: Ensure descriptions aren't just empty whitespace
+        if (!description || description.trim() === '') {
+            const err = new Error('Validation Error: Product description fields cannot be left blank.');
+            err.statusCode = 400;
+            return next(err);
+        }
+
+        const updatedProduct = await ProductModel.updateProductDescription(productId, description.trim());
+
+        if (!updatedProduct) {
+            const err = new Error('Catalog Error: The requested item record could not be found inside the cluster.');
+            err.statusCode = 404;
+            return next(err);
+        }
+
+        // Redirect back to the admin dashboard panel workspace
+        //res.redirect('/admin/dashboard');
+        // Change this line inside your handleUpdateDescription function:
+res.redirect(`/products/${productId}`);
+    } catch (error) {
+        next(error);
+    }
+};
