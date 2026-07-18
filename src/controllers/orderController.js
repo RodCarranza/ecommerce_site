@@ -5,7 +5,7 @@ import pool from '../config/db.js';
 /**
  * Renders the checkout page if the user has items in their cart
  */
-export const renderCheckout = async (req, res) => {
+export const renderCheckout = async (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
@@ -22,28 +22,30 @@ export const renderCheckout = async (req, res) => {
 
         res.render('pages/checkout', { cartItems, subtotal, error: null });
     } catch (error) {
-        console.error('Checkout Render Error:', error.message);
-        res.status(500).send('Server Error preparing checkout.');
+        // 🛠️ FIX: Hand off database fetch faults to the central error middleware
+        next(error);
     }
 };
 
 /**
  * Processes the transaction to finalize the order
  */
-export const handleCheckout = async (req, res) => {
+export const handleCheckout = async (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
 
     const { shippingAddress } = req.body;
     
+    // Address Validation Guard Block
     if (!shippingAddress || shippingAddress.trim() === '') {
         try {
             const cartItems = await CartModel.getCartByUserId(req.session.user.id);
             const subtotal = cartItems.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
             return res.render('pages/checkout', { cartItems, subtotal, error: 'Shipping address is required.' });
         } catch (err) {
-            return res.status(500).send('Server Error');
+            // 🛠️ FIX: Routed to the global safety net
+            return next(err);
         }
     }
 
@@ -51,13 +53,14 @@ export const handleCheckout = async (req, res) => {
         await OrderModel.placeOrder(req.session.user.id, shippingAddress);
         res.redirect('/orders'); // Redirect to order history after checkout
     } catch (error) {
-        console.error('Checkout processing error:', error.message);
         try {
+            // Attempt to gracefully re-render with validation context if transaction rules fail
             const cartItems = await CartModel.getCartByUserId(req.session.user.id);
             const subtotal = cartItems.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
             res.render('pages/checkout', { cartItems, subtotal, error: error.message });
         } catch (err) {
-            res.status(500).send('Transaction processing failed.');
+            // 🛠️ FIX: If even the secondary cart rollback query crashes, bubble it out to the portal
+            next(err);
         }
     }
 };
@@ -65,7 +68,7 @@ export const handleCheckout = async (req, res) => {
 /**
  * Displays user order history along with itemized breakdowns
  */
-export const renderOrderHistory = async (req, res) => {
+export const renderOrderHistory = async (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
@@ -81,15 +84,15 @@ export const renderOrderHistory = async (req, res) => {
 
         res.render('pages/orders', { orders: ordersWithDetails });
     } catch (error) {
-        console.error('Order History Error:', error.message);
-        res.status(500).send('Server Error loading your orders.');
+        // 🛠️ FIX: Routed mapping or connection limits to the error layout
+        next(error);
     }
 };
 
 /**
  * Renders the employee Dashboard showing all orders
  */
-export const renderEmployeeDashboard = async (req, res) => {
+export const renderEmployeeDashboard = async (req, res, next) => {
     try {
         const orders = await OrderModel.getAllSystemOrders();
 
@@ -108,21 +111,30 @@ export const renderEmployeeDashboard = async (req, res) => {
 
         res.render('pages/employee-dashboard', { orders: ordersWithDetails });
     } catch (error) {
-        console.error('employee Dashboard Error:', error.message);
-        res.status(500).send('Server error loading employee Panel.');
+        // 🛠️ FIX: Cleanly route cluster mapping exceptions to the system logs view
+        next(error);
     }
 };
 
 /**
- * Handles toggling order state updates
+ * Controller to handle updating an order's operational fulfillment status
  */
-export const handleUpdateStatus = async (req, res) => {
+export const handleUpdateStatus = async (req, res, next) => {
     const { orderId, newStatus } = req.body;
+    
     try {
+        // 1. Persist the updated fulfillment status to the database cluster
         await OrderModel.updateOrderStatus(orderId, newStatus);
-        res.redirect('/employee/dashboard');
+        
+        // 2. Dynamically determine the destination path depending on the staff member's clearance role
+        const dashboardUrl = req.session.user && req.session.user.role === 'admin' 
+            ? '/admin/dashboard' 
+            : '/employee/dashboard';
+        
+        // 3. Return the user smoothly back to their dedicated operational workspace
+        res.redirect(dashboardUrl);
     } catch (error) {
-        console.error('Status Update Error:', error.message);
-        res.status(500).send('Failed to update status.');
+        // Hand unexpected database faults off to the global centralized error handler middleware
+        next(error);
     }
 };

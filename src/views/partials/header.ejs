@@ -21,22 +21,27 @@
                 <div>
                     <a href="/">Home Catalog</a>
                     
-                    <!-- RESTRICTION RULE: Hide Shopping Cart and My Orders links if the active user is an employee -->
-                    <% if (!locals.user || user.role !== 'employee') { %>
+                    <!-- 🛒 RESTRICTION RULE: Hide Shopping Cart and My Orders links if the user is operational staff or admin -->
+                    <% if (!locals.user || (user.role !== 'employee' && user.role !== 'admin')) { %>
                         <a href="/cart" style="margin-left: 15px;">Shopping Cart</a>
                         <a href="/orders" style="border-left: 1px solid #444; padding-left: 15px;"> My Orders</a>
                     <% } %>
                     
-                    <!-- DASHBOARD RULE: Map visibility and function directly to the updated 'employee' role -->
+                    <!-- ⚙️ EMPLOYEE DASHBOARD LINK -->
                     <% if (locals.user && user.role === 'employee') { %>
                         <a href="/employee/dashboard" style="color: #00bcd4; border-left: 1px solid #444; padding-left: 15px;">⚙️ Employee Dashboard</a>
+                    <% } %>
+
+                    <!-- 🛠️ ADMIN DASHBOARD LINK (Now pointing to its own custom URL workspace) -->
+                    <% if (locals.user && user.role === 'admin') { %>
+                        <a href="/admin/dashboard" style="color: #ffb74d; border-left: 1px solid #444; padding-left: 15px;">🛠️ Admin Management Panel</a>
                     <% } %>
                 </div>
                 <div>
                     <!-- SAFE CHECK: Wrap welcome message and logout option -->
                     <% if (locals.user) { %>
                         <span style="margin-right: 15px; color: #00bcd4;">
-                            Welcome, <strong><%= user.name %></strong>
+                            Welcome, <strong><%= user.name %></strong> (<span style="text-transform: uppercase; font-size: 0.75rem; color: #aaa;"><%= user.role %></span>)
                         </span>
                         <a href="/logout" style="color: #ff5252;">Logout</a>
                     <% } else { %>

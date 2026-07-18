@@ -55,3 +55,29 @@ export const renderProductDetail = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * Controller to handle secure administrative product modifications
+ */
+export const handleUpdateProduct = async (req, res, next) => {
+    const productId = parseInt(req.params.id, 10);
+    const { name, price, stock_quantity } = req.body;
+
+    // Strict authorization guard: Only allow users authenticated with the explicit 'admin' role
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        const err = new Error('Clearance Denied: System Administrator credentials required to alter catalog parameters.');
+        err.statusCode = 403; // Forbidden
+        return next(err);
+    }
+
+    try {
+        // Execute the secure update function via our product model
+        await ProductModel.updateProductDetails(productId, name, parseFloat(price), parseInt(stock_quantity, 10));
+        
+        // Refresh the view workspace to instantly display the newly altered vectors
+        res.redirect(`/products/${productId}`);
+    } catch (error) {
+        // Hand off unexpected runtime or structural database errors to global middleware
+        next(error);
+    }
+};

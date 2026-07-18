@@ -3,7 +3,7 @@ import * as productController from '../controllers/productController.js';
 import * as authController from '../controllers/authController.js';
 import * as cartController from '../controllers/cartController.js';
 import * as orderController from '../controllers/orderController.js';
-import { isEmployee } from '../controllers/authMiddleware.js';
+import { isAdmin, isEmployee } from '../controllers/authMiddleware.js';
 import * as ReviewController from '../controllers/reviewController.js';
 
 const router = express.Router();
@@ -41,5 +41,12 @@ router.get('/orders', orderController.renderOrderHistory);
 // -- Employee dashboard routes -- //
 router.get('/employee/dashboard', isEmployee, orderController.renderEmployeeDashboard);
 router.post('/employee/dashboard/update', isEmployee, orderController.handleUpdateStatus);
+
+// -- Admin dashboard routes -- //
+router.get('/admin/dashboard', isAdmin, orderController.renderEmployeeDashboard);
+router.post('/admin/dashboard/update', isAdmin, orderController.handleUpdateStatus);
+
+// -- Product administrative edits -- //
+router.post('/products/:id/edit', productController.handleUpdateProduct);
 
 export default router;

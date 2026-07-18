@@ -33,3 +33,18 @@ export const createProduct = async ({ name, description, price, stock_quantity, 
     const { rows } = await pool.query(queryText, values);
     return rows[0];
 };
+
+/**
+ * Update an existing product's parameters (Used by Admins).
+ */
+export const updateProductDetails = async (id, name, price, stockQuantity) => {
+    const queryText = `
+        UPDATE products 
+        SET name = $1, price = $2, stock_quantity = $3 
+        WHERE id = $4 
+        RETURNING *;
+    `;
+    // Updated to use 'pool.query' and destructured the 'rows' array directly
+    const { rows } = await pool.query(queryText, [name, price, stockQuantity, id]);
+    return rows[0];
+};
