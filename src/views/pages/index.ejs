@@ -16,7 +16,7 @@
                     <p class="price" style="font-size: 1.25rem; font-weight: bold; color: #00bcd4; margin: 10px 0 5px 0;">$<%= parseFloat(product.price).toFixed(2) %></p>
                     <p style="margin-bottom: 15px;"><small>Stock: <%= product.stock_quantity %> units available</small></p>
                     
-                    <!-- 🛑 PROCUREMENT CONTROL: Completely hides the button/form for employees AND admins -->
+                    <!-- PROCUREMENT CONTROL: Completely hides the button/form for employees AND admins -->
                     <% if (!locals.user || (user.role !== 'employee' && user.role !== 'admin')) { %>
                         <form action="/cart" method="POST">
                             <!-- Hidden field passing the unique product ID -->

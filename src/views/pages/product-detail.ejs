@@ -2,7 +2,7 @@
 
 <p><a href="/">&larr; Back to Catalog Workspace</a></p>
 
-<!-- 🛠️ ADMINISTRATIVE INVENTORY CONTROL PANEL (Visible ONLY to Admins) -->
+<!-- ADMINISTRATIVE INVENTORY CONTROL PANEL (Visible ONLY to Admins) -->
 <% if (locals.user && user.role === 'admin') { %>
     <div style="background: #1c252e; border: 1px solid #ffb74d; padding: 20px; border-radius: 8px; margin-bottom: 35px;">
         <h3 style="color: #ffb74d; margin-top: 0;">🛠️ System Admin: Edit Product Parameters</h3>
@@ -45,10 +45,10 @@
 
         <p><strong>Availability:</strong> <%= product.stock_quantity %> units in inventory</p>
 
-        <!-- 🛑 PROCUREMENT ACCESS CONTROL: Blocks employees and admins from creating orders -->
+        <!-- PROCUREMENT ACCESS CONTROL: Blocks employees and admins from creating orders -->
         <% if (locals.user && (user.role === 'employee' || user.role === 'admin')) { %>
             <div style="margin-top: 25px; background: #222; border: 1px dashed #ff5252; padding: 15px; border-radius: 4px; color: #ff5252; font-size: 0.9rem;">
-                🚫 <strong>Procurement Restricted:</strong> Authorized internal personnel records are locked out of storefront acquisitions.
+                <strong>Procurement Restricted:</strong> Authorized internal personnel records are locked out of storefront acquisitions.
             </div>
         <% } else { %>
             <form action="/cart" method="POST" style="margin-top: 25px;">
@@ -62,14 +62,14 @@
 </div>
 
 <!-- ========================================================================= -->
-<!-- 💬 REVIEWS & FEEDBACK SECTION -->
+<!--  REVIEWS & FEEDBACK SECTION -->
 <!-- ========================================================================= -->
 <hr style="border: 0; border-top: 1px solid #333; margin: 50px 0 30px 0;">
 
 <section class="reviews-section">
-    <h3 style="color: #ffb74d; margin-bottom: 25px;">💬 Customer Feedback & Reviews</h3>
+    <h3 style="color: #ffb74d; margin-bottom: 25px;">Customer Feedback & Reviews</h3>
 
-    <!-- 📝 SUBMIT NEW REVIEW FORM (Enforcing Operational Constraints) -->
+    <!--  SUBMIT NEW REVIEW FORM (Enforcing Operational Constraints) -->
     <% if (locals.user && user.role !== 'employee' && user.role !== 'admin') { %>
         <div style="background: #1e1e1e; padding: 20px; border-radius: 8px; border: 1px solid #00bcd4; margin-bottom: 30px;">
             <h4 style="margin-top: 0; color: #00bcd4;">Leave Your Product Feedback</h4>
@@ -96,11 +96,11 @@
         </div>
     <% } else if (locals.user && (user.role === 'employee' || user.role === 'admin')) { %>
         <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px dashed #00bcd4; margin-bottom: 30px; color: #00bcd4;">
-            ⚙️ <strong>Administrative View Mode:</strong> Active session contains moderation permissions. Public string injection fields disabled.
+             <strong>Administrative View Mode:</strong> Active session contains moderation permissions. Public string injection fields disabled.
         </div>
     <% } else { %>
         <p style="background: #222; padding: 12px; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid #ffb74d;">
-            🔑 <a href="/login" style="color: #ffb74d; text-decoration: underline;">Log in to your account</a> to leave a product review.
+             <a href="/login" style="color: #ffb74d; text-decoration: underline;">Log in to your account</a> to leave a product review.
         </p>
     <% } %>
 
@@ -132,7 +132,7 @@
                         </p>
 
                         <!-- Actions Bar -->
-                        <!-- 🌟 EXPANDED MODERATION: Open deletion override to BOTH employees and admins -->
+                        <!-- EXPANDED MODERATION: Open deletion override to BOTH employees and admins -->
                         <% if (locals.user && (user.id === review.user_id || user.role === 'employee' || user.role === 'admin')) { %>
                             <div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 15px; align-items: center; font-size: 0.85rem;">
                                 
@@ -166,7 +166,7 @@
                     <!-- STATE B: INLINE EDIT PANEL -->
                     <% if (locals.user && user.id === review.user_id) { %>
                         <div id="review-edit-<%= review.id %>" style="display: none;">
-                            <h4 style="margin: 0 0 15px 0; color: #ffb74d;">✏️ Edit Your Feedback</h4>
+                            <h4 style="margin: 0 0 15px 0; color: #ffb74d;"> Edit Your Feedback</h4>
                             <form action="/products/<%= product.id %>/review/<%= review.id %>/edit" method="POST">
                                 <div style="margin-bottom: 12px;">
                                     <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">Modify Rating:</label>

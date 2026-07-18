@@ -14,7 +14,7 @@ export const handleCreateReview = async (req, res, next) => {
         return next(err);
     }
 
-    // 🛑 NEW ACCESSIBILITY GUARD UPGRADE: Block BOTH employees and admins from submitting reviews
+    // Block BOTH employees and admins from submitting reviews
     if (req.session.user.role === 'employee' || req.session.user.role === 'admin') {
         const err = new Error('Clearance Restriction: Internal staff accounts are unauthorized to submit public storefront catalog feedback.');
         err.statusCode = 403; // Forbidden
@@ -97,7 +97,7 @@ export const handleDeleteReview = async (req, res, next) => {
 
     const userId = req.session.user.id;
     
-    // 🌟 FIX: Named this variable 'isEmployee' so it perfectly matches what 
+    // Named this variable 'isEmployee' so it perfectly matches what 
     // is passed to your ReviewModel query on the line below, stopping the 500 error!
     const isEmployee = req.session.user.role === 'employee' || req.session.user.role === 'admin';
     

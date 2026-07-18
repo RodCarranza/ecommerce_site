@@ -19,7 +19,7 @@ export const renderCart = async (req, res) => {
 
         res.render('pages/cart', { cartItems, subtotal });
     } catch (error) {
-        console.error('❌ Cart View Error:', error.message);
+        console.error('Cart View Error:', error.message);
         res.status(500).send('Server Error loading your shopping cart.');
     }
 };
@@ -37,7 +37,7 @@ export const addToCart = async (req, res) => {
         await CartModel.addItemToCart(req.session.user.id, productId, quantity);
         res.redirect('/cart');
     } catch (error) {
-        console.error('❌ Add to Cart Error:', error.message);
+        console.error('Add to Cart Error:', error.message);
         res.status(500).send('Failed to add item to shopping cart.');
     }
 };
@@ -55,7 +55,7 @@ export const deleteFromCart = async (req, res) => {
         await CartModel.removeCartItem(cartItemId, req.session.user.id);
         res.redirect('/cart');
     } catch (error) {
-        console.error('❌ Remove from Cart Error:', error.message);
+        console.error('Remove from Cart Error:', error.message);
         res.status(500).send('Failed to remove item.');
     }
 };

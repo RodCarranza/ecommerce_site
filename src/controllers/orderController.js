@@ -22,7 +22,7 @@ export const renderCheckout = async (req, res, next) => {
 
         res.render('pages/checkout', { cartItems, subtotal, error: null });
     } catch (error) {
-        // 🛠️ FIX: Hand off database fetch faults to the central error middleware
+        // Hand off database fetch faults to the central error middleware
         next(error);
     }
 };
@@ -44,7 +44,7 @@ export const handleCheckout = async (req, res, next) => {
             const subtotal = cartItems.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
             return res.render('pages/checkout', { cartItems, subtotal, error: 'Shipping address is required.' });
         } catch (err) {
-            // 🛠️ FIX: Routed to the global safety net
+            // Routed to the global safety net
             return next(err);
         }
     }
@@ -59,7 +59,7 @@ export const handleCheckout = async (req, res, next) => {
             const subtotal = cartItems.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
             res.render('pages/checkout', { cartItems, subtotal, error: error.message });
         } catch (err) {
-            // 🛠️ FIX: If even the secondary cart rollback query crashes, bubble it out to the portal
+            // If even the secondary cart rollback query crashes, bubble it out to the portal
             next(err);
         }
     }
@@ -84,7 +84,7 @@ export const renderOrderHistory = async (req, res, next) => {
 
         res.render('pages/orders', { orders: ordersWithDetails });
     } catch (error) {
-        // 🛠️ FIX: Routed mapping or connection limits to the error layout
+        // Routed mapping or connection limits to the error layout
         next(error);
     }
 };
@@ -111,7 +111,7 @@ export const renderEmployeeDashboard = async (req, res, next) => {
 
         res.render('pages/employee-dashboard', { orders: ordersWithDetails });
     } catch (error) {
-        // 🛠️ FIX: Cleanly route cluster mapping exceptions to the system logs view
+        // Cleanly route cluster mapping exceptions to the system logs view
         next(error);
     }
 };

@@ -1,0 +1,245 @@
+<%- include('../partials/header') %>
+<style>
+    .matrix-container {
+        margin-top: 25px;
+        overflow-x: auto;
+    }
+    .matrix-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        font-family: sans-serif;
+    }
+    .matrix-thead-tr {
+        background-color: #222;
+        border-bottom: 2px solid #444;
+        text-align: left;
+    }
+    .matrix-th {
+        padding: 14px;
+        color: #fff;
+        font-weight: 600;
+    }
+    .matrix-row {
+        border-bottom: 1px solid #333;
+        transition: background 0.2s;
+    }
+    .matrix-row:hover {
+        background-color: #1c1c1c;
+        color:#bbb;
+    }
+    .matrix-td {
+        padding: 14px;
+    }
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #fff;
+    }
+    .badge-admin { background-color: #d35400; }
+    .badge-employee { background-color: #2980b9; }
+    .badge-customer { background-color: #27ae60; }
+    
+    .btn-delete {
+        background-color: #c0392b;
+        color: white;
+        border: none;
+        padding: 7px 14px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-delete:hover {
+        background-color: #e74c3c;
+    }
+
+    /* Professional Custom Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px); /* Modern frosted-glass effect */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .modal-box {
+        background-color: #181818;
+        border: 1px solid #3a3a3a;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 520px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        transform: translateY(-20px);
+        transition: transform 0.25s ease;
+        font-family: sans-serif;
+    }
+    .modal-overlay.active .modal-box {
+        transform: translateY(0);
+    }
+    .modal-title {
+        color: #e74c3c;
+        margin-top: 0;
+        font-size: 1.35rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .modal-body {
+        color: #cccccc;
+        margin: 20px 0;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+    .target-highlight {
+        color: #fff;
+        font-weight: bold;
+        background: #2a2a2a;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #444;
+    }
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 25px;
+    }
+    .btn-secondary {
+        background-color: #333;
+        color: #eee;
+        border: 1px solid #444;
+        padding: 8px 18px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #444;
+        color: #fff;
+    }
+</style>
+
+<h2>User Management</h2>
+<p>View user accounts, manage access, or permanently remove users.</p>
+
+<div class="matrix-container">
+    <table class="matrix-table">
+        <thead>
+            <tr class="matrix-thead-tr">
+                <th class="matrix-th">Profile Name</th>
+                <th class="matrix-th">Registered Email Address</th>
+                <th class="matrix-th">User Role</th>
+                <th class="matrix-th" style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (users.length === 0) { %>
+                <tr>
+                    <td colspan="4" class="matrix-td" style="text-align: center; color: #888;">No alternative system accounts detected inside the database cluster.</td>
+                </tr>
+            <% } else { %>
+                <% users.forEach(user => { %>
+                    <tr class="matrix-row">
+                        <td class="matrix-td" style="font-weight: 500;"><%= user.name %></td>
+                        <td class="matrix-td" style="color: #bbb;"><%= user.email %></td>
+                        <td class="matrix-td">
+                            <span class="badge badge-<%= user.role %>">
+                                <%= user.role %>
+                            </span>
+                        </td>
+                        <td class="matrix-td" style="text-align: center;">
+                            <!-- Safe data-attributes instead of inline form submittals -->
+                            <button type="button" 
+                                    class="btn-delete" 
+                                    data-id="<%= user.id %>" 
+                                    data-name="<%= user.name %>"
+                                    onclick="triggerDeleteFlow(this)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<!-- The Custom Professional Modal Markup -->
+<div id="deleteModal" class="modal-overlay" onclick="closeDeleteModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-title">
+            <span>🚨</span> CRITICAL ACCOUNT TERMINATION WARNING
+        </div>
+        <div class="modal-body">
+            Are you absolutely sure you want to permanently delete the data profile for <span id="modalTargetUser" class="target-highlight"></span>?
+            <br><br>
+            This execution will deeply purge all linked checkout order logs, active shopping carts, product reviews, and profile metrics from the cluster database. <strong>This action is terminal and cannot be undone.</strong>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="hideModal()">Cancel</button>
+            <!-- Single form structure handled dynamically via JavaScript -->
+            <form id="modalDeleteForm" method="POST" style="margin: 0;">
+                <button type="submit" class="btn-delete">Confirm Termination</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Client-side Intercept Logic Controls -->
+<script>
+    const modal = document.getElementById('deleteModal');
+    const modalForm = document.getElementById('modalDeleteForm');
+    const modalText = document.getElementById('modalTargetUser');
+
+    function triggerDeleteFlow(element) {
+        // Pull context data straight from the button attributes safely
+        const userId = element.getAttribute('data-id');
+        const userName = element.getAttribute('data-name');
+
+        // Dynamically configure our form action routing target
+        modalForm.setAttribute('action', `/admin/users/${userId}/delete`);
+        modalText.textContent = userName;
+
+        // Show the overlay component with a smooth animation frame
+        modal.classList.add('active');
+    }
+
+    function hideModal() {
+        modal.classList.remove('active');
+    }
+
+    // Close the interface if the administrator clicks outside the modal layout box box boundary
+    function closeDeleteModal(event) {
+        if (event.target === modal) {
+            hideModal();
+        }
+    }
+
+    // Accessibility: hit 'Escape' key to step back out smoothly
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            hideModal();
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

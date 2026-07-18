@@ -3,6 +3,7 @@ import * as productController from '../controllers/productController.js';
 import * as authController from '../controllers/authController.js';
 import * as cartController from '../controllers/cartController.js';
 import * as orderController from '../controllers/orderController.js';
+import { renderManageUsers, handleDeleteUser } from '../controllers/userController.js';
 import { isAdmin, isEmployee } from '../controllers/authMiddleware.js';
 import * as ReviewController from '../controllers/reviewController.js';
 
@@ -48,5 +49,9 @@ router.post('/admin/dashboard/update', isAdmin, orderController.handleUpdateStat
 
 // -- Product administrative edits -- //
 router.post('/products/:id/edit', productController.handleUpdateProduct);
+
+// -- Secure User Directory Administration Infrastructure -- //
+router.get('/admin/users', isAdmin, renderManageUsers);
+router.post('/admin/users/:id/delete', isAdmin, handleDeleteUser);
 
 export default router;
