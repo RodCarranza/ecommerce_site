@@ -1,4 +1,25 @@
 import pool from '../config/db.js';
+import bcrypt from 'bcrypt'; // Ensure bcrypt is imported for your hashing logic
+
+/**
+ * Creates a brand new secure user account in the database.
+ * Handles automatic password hashing inside the model layer.
+ */
+export const createUser = async (name, email, plainTextPassword) => {
+    // Generate a salt and hash the password (10 rounds is standard industry balance of security/speed)
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(plainTextPassword, saltRounds);
+
+    const query = `
+        INSERT INTO users (name, email, password, role) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id, name, email, role;
+    `;
+    // Pass the securely generated hash into the database, defaulting role to 'customer'
+    const values = [name, email, passwordHash, 'customer'];
+    const { rows } = await pool.query(query, values);
+    return rows[0];
+};
 
 /**
  * Fetch a user profile from the database by their unique email address
