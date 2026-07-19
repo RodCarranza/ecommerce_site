@@ -1,24 +1,166 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #444; border-radius: 8px;">
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 60px auto;
+        padding: 30px;
+        background: #1e1e1e; /* Sleek dark card background */
+        border: 1px solid #333;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #e0e0e0;
+    }
+    .auth-container h2 {
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #aaa;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+    }
+    .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .password-wrapper .form-control {
+        padding-right: 44px;
+    }
+    .toggle-btn {
+        position: absolute;
+        right: 4px;
+        height: 36px;
+        width: 36px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #777;
+        transition: color 0.2s;
+        border-radius: 4px;
+    }
+    .toggle-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .input-hint {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.8rem;
+        color: #777;
+        line-height: 1.4;
+    }
+    .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background: #4a90e2;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+    }
+    .submit-btn:hover {
+        background: #357abd;
+    }
+    .alert {
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+    .alert-error {
+        color: #ff5252;
+        background: rgba(255, 82, 82, 0.1);
+        border: 1px solid rgba(255, 82, 82, 0.2);
+    }
+</style>
+
+<div class="auth-container">
     <h2>Create Secure Account</h2>
     
     <% if (error) { %>
-        <p style="color: #ff5252; background: #331c1c; padding: 10px; border-radius: 4px;"><%= error %></p>
+        <div class="alert alert-error"><%= error %></div>
     <% } %>
 
     <form action="/register" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required style="width: 100%; margin-bottom: 15px;">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-control" minlength="3" required autocorrect="off" autocapitalize="none">
+            <span class="input-hint">Must be 3 characters or longer</span>
+        </div>
 
-        <label for="email">Email Address:</label>
-        <input type="email" id="email" name="email" required style="width: 100%; margin-bottom: 15px;">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required style="width: 100%; margin-bottom: 25px;">
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" class="form-control" minlength="8" required>
+                <button type="button" id="passwordToggle" class="toggle-btn" aria-label="Toggle password visibility">
+                    <!-- Defaults to closed/slashed eye vector graphic -->
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+            <span class="input-hint">Must be 8 characters or longer</span>
+        </div>
 
-        <button type="submit" style="width: 100%;">Register Secure Account</button>
+        <button type="submit" class="submit-btn">Register Secure Account</button>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        const eyeOpenSvg = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
+        const eyeClosedSvg = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+
+        passwordToggle.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            // If changing to text (visible), render open eye; otherwise render slashed eye
+            eyeIcon.innerHTML = isPassword ? eyeOpenSvg : eyeClosedSvg;
+        });
+    });
+</script>
 
 <%- include('../partials/footer') %>

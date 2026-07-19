@@ -4,7 +4,7 @@ import * as authController from '../controllers/authController.js';
 import * as cartController from '../controllers/cartController.js';
 import * as orderController from '../controllers/orderController.js';
 import { renderManageUsers, handleDeleteUser } from '../controllers/userController.js';
-import { isAdmin, isEmployee } from '../controllers/authMiddleware.js';
+import { isAdmin, isEmployee } from '../middleware/authMiddleware.js';
 import * as ReviewController from '../controllers/reviewController.js';
 import { handleUpdateDescription } from '../controllers/productController.js';
 

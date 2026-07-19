@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import session from 'express-session';
 import shopRoutes from './src/routes/shopRoutes.js';
 import { sanitizeBody } from './src/middleware/sanitizeMiddleware.js';
+import { handleNotFound, globalErrorHandler } from './src/middleware/errorMiddleware.js';
 
 const app = express();
 
@@ -43,7 +44,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// 5. Real Storefront Routes
+// Real Storefront Routes
 app.use('/', shopRoutes);
+
+// Catch-all 404 handler (matches anything that didn't hit a route above)
+app.use(handleNotFound);
+
+// Global Error Handler (MUST BE LAST so next(err) can fall into it)
+app.use(globalErrorHandler);
 
 export default app;

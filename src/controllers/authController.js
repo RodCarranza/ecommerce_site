@@ -5,7 +5,7 @@ export const renderRegister = (req, res) => {
     res.render('pages/register', { error: null });
 };
 
-export const handleRegister = async (req, res) => {
+export const handleRegister = async (req, res, next) => {
     const { username, email, password } = req.body;
     try {
         // Basic check to make sure fields aren't blank
@@ -39,7 +39,7 @@ export const renderLogin = (req, res) => {
     res.render('pages/login', { error: null, success: successMessage });
 };
 
-export const handleLogin = async (req, res) => {
+export const handleLogin = async (req, res, next) => {
     const { email, password } = req.body;
     try {
         if (!email || !password) {
@@ -70,9 +70,9 @@ export const handleLogin = async (req, res) => {
 
         // 4. Redirect home to the catalog
         res.redirect('/');
-    } catch (error) {
-        console.error('Login Error:', error.message);
-        res.status(500).render('pages/login', { error: 'Server error encountered during authentication.', success: null });
+        } catch (error) {
+        // 4. Pass genuine server/DB crashes up to global error middleware
+        next(error);
     }
 };
 
