@@ -8,12 +8,12 @@ export const renderRegister = (req, res) => {
 export const handleRegister = async (req, res, next) => {
     const { username, email, password } = req.body;
     try {
-        // Basic check to make sure fields aren't blank
+        // Validation: Blank fields check
         if (!username || !email || !password) {
             return res.render('pages/register', { error: 'All fields are required.' });
         }
 
-        // Check if user already exists
+        // Validation: Existing user check
         const existingUser = await UserModel.getUserByEmail(email);
         if (existingUser) {
             return res.render('pages/register', { error: 'Email is already registered.' });
@@ -25,13 +25,12 @@ export const handleRegister = async (req, res, next) => {
         // Redirect to login with a query parameter
         res.redirect('/login?registered=true');
     } catch (error) {
-        console.error('Registration Error:', error.message);
-        res.status(500).render('pages/register', { error: 'Server error during registration.' });
+        // Forward unexpected DB/hashing crashes to global error handler
+        next(error);
     }
 };
 
 export const renderLogin = (req, res) => {
-    // Check if redirected from a successful registration
     const successMessage = req.query.registered === 'true' 
         ? 'Account created successfully! You can now log in.' 
         : null;
@@ -42,25 +41,22 @@ export const renderLogin = (req, res) => {
 export const handleLogin = async (req, res, next) => {
     const { email, password } = req.body;
     try {
+        // Validation checks
         if (!email || !password) {
-            // Added success: null to prevent rendering crashes
             return res.render('pages/login', { error: 'All fields are required.', success: null });
         }
 
-        // 1. Look up user by email address
         const user = await UserModel.getUserByEmail(email);
         if (!user) {
             return res.render('pages/login', { error: 'Invalid email or password combination.', success: null });
         }
 
-        // 2. Compare incoming plain text password against the hashed string in your db
         const match = await bcrypt.compare(password, user.password); 
-
         if (!match) {
             return res.render('pages/login', { error: 'Invalid email or password combination.', success: null });
         }
 
-        // 3. Password matched! Save the user profile to session state memory
+        // Session creation
         req.session.user = {
             id: user.id,
             name: user.name,
@@ -68,20 +64,20 @@ export const handleLogin = async (req, res, next) => {
             role: user.role
         };
 
-        // 4. Redirect home to the catalog
         res.redirect('/');
-        } catch (error) {
-        // 4. Pass genuine server/DB crashes up to global error middleware
+    } catch (error) {
+        // Forward genuine server/DB crashes to global error handler
         next(error);
     }
 };
 
-export const handleLogout = (req, res) => {
-    // Destroy the server memory file and wipe the browser cookie
+export const handleLogout = (req, res, next) => {
     req.session.destroy((err) => {
         if (err) {
-            console.error('Logout Error:', err.message);
+            // Forward session destruction failures to global error handler
+            return next(err);
         }
+        res.clearCookie('connect.sid'); // Ensure browser cookie clearance
         res.redirect('/');
     });
 };

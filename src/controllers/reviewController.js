@@ -7,6 +7,12 @@ export const handleCreateReview = async (req, res, next) => {
     const productId = parseInt(req.params.id, 10);
     const { rating, comment } = req.body;
 
+    if (isNaN(productId)) {
+        const err = new Error('Invalid Product ID configuration format.');
+        err.statusCode = 400;
+        return next(err);
+    }
+
     // 1. Session check
     if (!req.session.user) {
         const err = new Error('Access denied. You must be authenticated to post feedback.');
@@ -25,15 +31,14 @@ export const handleCreateReview = async (req, res, next) => {
     const numericRating = parseInt(rating, 10);
 
     try {
-        // 2. Input validation: reject blank comments (after sanitization stripped any tags)
+        // 2. Input validation
         if (!comment || comment.trim() === '' || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
             const err = new Error('Invalid submissions detected. Reviews must contain clean, non-empty text and a rating from 1-5.');
             err.statusCode = 400; // Bad Request
             return next(err);
         }
 
-        // Save sanitized review in the database
-        await ReviewModel.createReview(productId, userId, numericRating, comment);
+        await ReviewModel.createReview(productId, userId, numericRating, comment.trim());
 
         res.redirect(`/products/${productId}`);
     } catch (error) {
@@ -48,6 +53,12 @@ export const handleUpdateReview = async (req, res, next) => {
     const productId = parseInt(req.params.productId, 10);
     const reviewId = parseInt(req.params.reviewId, 10);
     const { rating, comment } = req.body;
+
+    if (isNaN(productId) || isNaN(reviewId)) {
+        const err = new Error('Invalid request parameters.');
+        err.statusCode = 400;
+        return next(err);
+    }
 
     // 1. Session check
     if (!req.session.user) {
@@ -68,7 +79,7 @@ export const handleUpdateReview = async (req, res, next) => {
         }
 
         // 3. Update database query
-        const updatedReview = await ReviewModel.updateReview(reviewId, userId, numericRating, comment);
+        const updatedReview = await ReviewModel.updateReview(reviewId, userId, numericRating, comment.trim());
 
         if (!updatedReview) {
             const err = new Error('Unauthorized operational clearance. You do not own this review.');
@@ -89,6 +100,12 @@ export const handleDeleteReview = async (req, res, next) => {
     const productId = parseInt(req.params.productId, 10);
     const reviewId = parseInt(req.params.reviewId, 10);
 
+    if (isNaN(productId) || isNaN(reviewId)) {
+        const err = new Error('Invalid request parameters.');
+        err.statusCode = 400;
+        return next(err);
+    }
+
     if (!req.session.user) {
         const err = new Error('Access denied. Log in to remove feedback records.');
         err.statusCode = 401;
@@ -96,9 +113,6 @@ export const handleDeleteReview = async (req, res, next) => {
     }
 
     const userId = req.session.user.id;
-    
-    // Named this variable 'isEmployee' so it perfectly matches what 
-    // is passed to your ReviewModel query on the line below, stopping the 500 error!
     const isEmployee = req.session.user.role === 'employee' || req.session.user.role === 'admin';
     
     try {

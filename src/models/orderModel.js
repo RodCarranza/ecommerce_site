@@ -124,6 +124,20 @@ export const getAllSystemOrders = async () => {
 };
 
 /**
+ * Fetches itemized order details for staff/employee views
+ */
+export const getEmployeeOrderItems = async (orderId) => {
+    const queryText = `
+        SELECT oi.quantity, oi.price_at_purchase, p.name 
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        WHERE oi.order_id = $1;
+    `;
+    const { rows } = await pool.query(queryText, [orderId]);
+    return rows;
+};
+
+/**
  * Updates an order's status (e.g., 'placed' -> 'shipped')
  */
 export const updateOrderStatus = async (orderId, newStatus) => {
