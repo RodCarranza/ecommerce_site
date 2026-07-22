@@ -24,6 +24,9 @@ const pgPool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
+// Tell Express it is behind Render's proxy (Required for HTTPS cookies on Render)
+app.set('trust proxy', 1);
+
 // 1. Setup View Engine (EJS)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src', 'views'));
