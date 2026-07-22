@@ -3,7 +3,7 @@ import * as productController from '../controllers/productController.js';
 import * as authController from '../controllers/authController.js';
 import * as cartController from '../controllers/cartController.js';
 import * as orderController from '../controllers/orderController.js';
-import { renderManageUsers, handleDeleteUser } from '../controllers/userController.js';
+import { renderManageUsers, handleDeleteUser, renderRegisterEmployee, handleRegisterEmployee } from '../controllers/userController.js';
 import { isAdmin, isEmployee } from '../middleware/authMiddleware.js';
 import * as ReviewController from '../controllers/reviewController.js';
 import { handleUpdateDescription } from '../controllers/productController.js';
@@ -54,6 +54,10 @@ router.post('/products/:id/edit', productController.handleUpdateProduct);
 // -- Secure User Directory Administration Infrastructure -- //
 router.get('/admin/users', isAdmin, renderManageUsers);
 router.post('/admin/users/:id/delete', isAdmin, handleDeleteUser);
+
+// -- Admin Employee Registration -- //
+router.get('/admin/employees', isAdmin, renderRegisterEmployee);
+router.post('/admin/employees', isAdmin, handleRegisterEmployee);
 
 // -- Secure Catalog Administration Infrastructure -- //
 router.post('/admin/products/:id/edit-description', isAdmin, handleUpdateDescription);

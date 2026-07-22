@@ -58,3 +58,53 @@ export const handleDeleteUser = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * Renders the admin-only form for registering a new employee account
+ */
+export const renderRegisterEmployee = (req, res, next) => {
+    // 1. Strict Authorization Guard
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        const err = new Error('Clearance Denied: System Administrator credentials required.');
+        err.statusCode = 403;
+        return next(err);
+    }
+
+    res.render('pages/register-employee', { error: null });
+};
+
+/**
+ * Handles creating a new employee account. The 'employee' role below is a
+ * hardcoded literal, never read from req.body — this form is only ever
+ * allowed to create one kind of account, the same way public registration
+ * is only ever allowed to create a 'customer' account.
+ */
+export const handleRegisterEmployee = async (req, res, next) => {
+    // 1. Strict Authorization Guard
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        const err = new Error('Clearance Denied: System Administrator credentials required.');
+        err.statusCode = 403;
+        return next(err);
+    }
+
+    const { name, email, password } = req.body;
+
+    try {
+        // Validation: Blank fields check
+        if (!name || !email || !password) {
+            return res.render('pages/register-employee', { error: 'All fields are required.' });
+        }
+
+        // Validation: Existing user check
+        const existingUser = await UserModel.getUserByEmail(email);
+        if (existingUser) {
+            return res.render('pages/register-employee', { error: 'Email is already registered.' });
+        }
+
+        await UserModel.createUser(name, email, password, 'employee');
+
+        res.redirect('/admin/users');
+    } catch (error) {
+        next(error);
+    }
+};
