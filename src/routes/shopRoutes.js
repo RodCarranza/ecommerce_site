@@ -58,4 +58,9 @@ router.post('/admin/users/:id/delete', isAdmin, handleDeleteUser);
 // -- Secure Catalog Administration Infrastructure -- //
 router.post('/admin/products/:id/edit-description', isAdmin, handleUpdateDescription);
 
+// -- Admin Product Catalog Management (Create / Delete) -- //
+router.get('/admin/products', isAdmin, productController.renderManageProducts);
+router.post('/admin/products', isAdmin, productController.handleCreateProduct);
+router.post('/admin/products/:id/delete', isAdmin, productController.handleDeleteProduct);
+
 export default router;

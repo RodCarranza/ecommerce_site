@@ -57,3 +57,14 @@ export const updateProductDescription = async (productId, description) => {
     const { rows } = await pool.query(query, [description, productId]);
     return rows[0];
 };
+
+/**
+ * Permanently removes a product from the database (Used by Admins).
+ * order_items.product_id uses ON DELETE SET NULL, so past orders that
+ * included this product keep their sales history even after it's gone.
+ */
+export const deleteProductById = async (id) => {
+    const query = 'DELETE FROM products WHERE id = $1 RETURNING id;';
+    const { rows } = await pool.query(query, [id]);
+    return rows[0];
+};

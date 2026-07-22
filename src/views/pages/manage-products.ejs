@@ -1,0 +1,303 @@
+<%- include('../partials/header') %>
+<style>
+    .matrix-container {
+        margin-top: 25px;
+        overflow-x: auto;
+    }
+    .matrix-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        font-family: sans-serif;
+    }
+    .matrix-thead-tr {
+        background-color: #222;
+        border-bottom: 2px solid #444;
+        text-align: left;
+    }
+    .matrix-th {
+        padding: 14px;
+        color: #fff;
+        font-weight: 600;
+    }
+    .matrix-row {
+        border-bottom: 1px solid #333;
+        transition: background 0.2s;
+    }
+    .matrix-row:hover {
+        background-color: #1c1c1c;
+        color: #bbb;
+    }
+    .matrix-td {
+        padding: 14px;
+    }
+    .btn-delete {
+        background-color: #c0392b;
+        color: white;
+        border: none;
+        padding: 7px 14px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-delete:hover {
+        background-color: #e74c3c;
+    }
+    .btn-secondary {
+        background-color: #333;
+        color: #eee;
+        border: 1px solid #444;
+        padding: 7px 14px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #444;
+        color: #fff;
+    }
+    .create-form {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 24px;
+        margin-top: 20px;
+        max-width: 640px;
+    }
+    .form-row {
+        margin-bottom: 14px;
+    }
+    .form-row label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ccc;
+        font-size: 0.9rem;
+    }
+    .form-row input, .form-row textarea {
+        width: 100%;
+        padding: 8px 10px;
+        background: #2a2a2a;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-family: sans-serif;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .btn-submit {
+        background-color: #00bcd4;
+        color: #111;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .error-banner {
+        background: #4a1515;
+        border: 1px solid #c0392b;
+        color: #ff9a9a;
+        padding: 10px 14px;
+        border-radius: 4px;
+        margin-top: 16px;
+        max-width: 640px;
+    }
+
+    /* Delete confirmation modal, matching the user-management page */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .modal-box {
+        background-color: #181818;
+        border: 1px solid #3a3a3a;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 520px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        transform: translateY(-20px);
+        transition: transform 0.25s ease;
+        font-family: sans-serif;
+    }
+    .modal-overlay.active .modal-box {
+        transform: translateY(0);
+    }
+    .modal-title {
+        color: #e74c3c;
+        margin-top: 0;
+        font-size: 1.35rem;
+        font-weight: bold;
+    }
+    .modal-body {
+        color: #cccccc;
+        margin: 20px 0;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+    .target-highlight {
+        color: #fff;
+        font-weight: bold;
+        background: #2a2a2a;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #444;
+    }
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 25px;
+    }
+</style>
+
+<h2>Product Management</h2>
+<p>Add new inventory or permanently remove existing products.</p>
+
+<% if (typeof error !== 'undefined' && error) { %>
+    <div class="error-banner"><%= error %></div>
+<% } %>
+
+<div class="create-form">
+    <h3 style="margin-bottom: 16px; color: #fff;">Add New Product</h3>
+    <form method="POST" action="/admin/products">
+        <div class="form-row">
+            <label for="name">Product Name</label>
+            <input type="text" id="name" name="name" required maxlength="150">
+        </div>
+        <div class="form-row">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-grid">
+            <div class="form-row">
+                <label for="price">Price ($)</label>
+                <input type="number" id="price" name="price" min="0" step="0.01" required>
+            </div>
+            <div class="form-row">
+                <label for="stock_quantity">Stock Quantity</label>
+                <input type="number" id="stock_quantity" name="stock_quantity" min="0" step="1" value="0">
+            </div>
+        </div>
+        <div class="form-row">
+            <label for="image_url">Image URL (optional)</label>
+            <input type="text" id="image_url" name="image_url" placeholder="/images/default-product.jpg">
+        </div>
+        <button type="submit" class="btn-submit">Create Product</button>
+    </form>
+</div>
+
+<div class="matrix-container">
+    <table class="matrix-table">
+        <thead>
+            <tr class="matrix-thead-tr">
+                <th class="matrix-th">Name</th>
+                <th class="matrix-th">Price</th>
+                <th class="matrix-th">Stock</th>
+                <th class="matrix-th" style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (products.length === 0) { %>
+                <tr>
+                    <td colspan="4" class="matrix-td" style="text-align: center; color: #888;">No products in the catalog yet.</td>
+                </tr>
+            <% } else { %>
+                <% products.forEach(product => { %>
+                    <tr class="matrix-row">
+                        <td class="matrix-td" style="font-weight: 500;">
+                            <a href="/products/<%= product.id %>" style="color: #fff;"><%= product.name %></a>
+                        </td>
+                        <td class="matrix-td">$<%= parseFloat(product.price).toFixed(2) %></td>
+                        <td class="matrix-td"><%= product.stock_quantity %></td>
+                        <td class="matrix-td" style="text-align: center;">
+                            <a href="/products/<%= product.id %>" class="btn-secondary">Edit</a>
+                            <button type="button"
+                                    class="btn-delete"
+                                    data-id="<%= product.id %>"
+                                    data-name="<%= product.name %>"
+                                    onclick="triggerDeleteFlow(this)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<div id="deleteModal" class="modal-overlay" onclick="closeDeleteModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-title">Delete Product</div>
+        <div class="modal-body">
+            Are you sure you want to permanently delete <span id="modalTargetProduct" class="target-highlight"></span>?
+            <br><br>
+            Past orders that included this product will keep their sales history, but it will disappear from the catalog immediately. <strong>This action cannot be undone.</strong>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="hideModal()">Cancel</button>
+            <form id="modalDeleteForm" method="POST" style="margin: 0;">
+                <button type="submit" class="btn-delete">Confirm Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('deleteModal');
+    const modalForm = document.getElementById('modalDeleteForm');
+    const modalText = document.getElementById('modalTargetProduct');
+
+    function triggerDeleteFlow(element) {
+        const productId = element.getAttribute('data-id');
+        const productName = element.getAttribute('data-name');
+
+        modalForm.setAttribute('action', `/admin/products/${productId}/delete`);
+        modalText.textContent = productName;
+
+        modal.classList.add('active');
+    }
+
+    function hideModal() {
+        modal.classList.remove('active');
+    }
+
+    function closeDeleteModal(event) {
+        if (event.target === modal) {
+            hideModal();
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            hideModal();
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>
