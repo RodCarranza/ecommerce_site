@@ -29,12 +29,12 @@ app.use(sanitizeBody);
 
 // 3. Configure Secure Sessions 
 app.use(session({
-    secret: 'byu_cse_super_secret_vault_key', // In production, this would go in .env file
+    secret: process.env.SESSION_SECRET, // In production, this would go in .env file
     resave: false,                             // Don't save session if unmodified
     saveUninitialized: false,                  // Don't create session until something is stored
     cookie: { 
         maxAge: 1000 * 60 * 60 * 24,           // Cookie expires in 24 hours
-        secure: false                          // Set to true only if using HTTPS (leave false for localhost)
+        secure: true                          // Set to true only if using HTTPS (leave false for localhost)
     }
 }));
 
