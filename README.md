@@ -1,7 +1,7 @@
 
-**Project Description**
+# Project Description
 
-# TechVault: Advanced Hardware Catalog Workspace
+**TechVault: Advanced Hardware Catalog Workspace**
 
 **TechVault** is an e-commerce web application engineered as a high-performance hardware catalog and user interaction system. Built on the **Model-View-Controller (MVC)** architecture, TechVault leverages **Node.js**, **Express**, **PostgreSQL**, and **EJS** templates to deliver a modern, secure, and fully reactive storefront experience—without relying on heavy client-side frameworks or disruptive popups.
 
@@ -33,7 +33,7 @@
 ### 👑 Admin / Owner
 *Includes all Employee permissions, plus:*
 * **Catalog Management:** Add, edit, or remove products (modify titles, prices, stock quantities, and descriptions).
-* **User Administration:** View all registered accounts, manage user roles, delete accounts, and onboard new employees.
+* **User Administration:** View all registered accounts, manage user roles, delete accounts, and register new employees.
 
 ---
 
