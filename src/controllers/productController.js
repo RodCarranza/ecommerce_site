@@ -54,13 +54,6 @@ export const handleUpdateProduct = async (req, res, next) => {
     const productId = parseInt(req.params.id, 10);
     const { name, price, stock_quantity } = req.body;
 
-    // Strict authorization guard
-    if (!req.session.user || req.session.user.role !== 'admin') {
-        const err = new Error('Clearance Denied: System Administrator credentials required to alter catalog parameters.');
-        err.statusCode = 403;
-        return next(err);
-    }
-
     try {
         await ProductModel.updateProductDetails(productId, name, parseFloat(price), parseInt(stock_quantity, 10));
         res.redirect(`/products/${productId}`);
@@ -75,13 +68,6 @@ export const handleUpdateProduct = async (req, res, next) => {
 export const handleUpdateDescription = async (req, res, next) => {
     const productId = parseInt(req.params.id, 10);
     const { description } = req.body;
-
-    // Strict authorization guard
-    if (!req.session.user || req.session.user.role !== 'admin') {
-        const err = new Error('Clearance Denied: System Administrator credentials required to alter product descriptions.');
-        err.statusCode = 403;
-        return next(err);
-    }
 
     try {
         if (!description || description.trim() === '') {

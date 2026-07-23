@@ -49,7 +49,7 @@ router.get('/admin/dashboard', isAdmin, orderController.renderEmployeeDashboard)
 router.post('/admin/dashboard/update', isAdmin, orderController.handleUpdateStatus);
 
 // -- Product administrative edits -- //
-router.post('/products/:id/edit', productController.handleUpdateProduct);
+router.post('/products/:id/edit', isAdmin, productController.handleUpdateProduct);
 
 // -- Secure User Directory Administration Infrastructure -- //
 router.get('/admin/users', isAdmin, renderManageUsers);
